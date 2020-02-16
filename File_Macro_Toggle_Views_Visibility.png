@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html class="client-nojs" lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<title>File:Macro Toggle Views Visibility.png - FreeCAD Documentation</title>
+<script>document.documentElement.className = document.documentElement.className.replace( /(^|\s)client-nojs(\s|$)/, "$1client-js$2" );</script>
+<script>(window.RLQ=window.RLQ||[]).push(function(){mw.config.set({"wgCanonicalNamespace":"File","wgCanonicalSpecialPageName":false,"wgNamespaceNumber":6,"wgPageName":"File:Macro_Toggle_Views_Visibility.png","wgTitle":"Macro Toggle Views Visibility.png","wgCurRevisionId":138367,"wgRevisionId":138367,"wgArticleId":55129,"wgIsArticle":true,"wgIsRedirect":false,"wgAction":"view","wgUserName":"Spanner888","wgUserGroups":["editor","translator","*","user","autoconfirmed"],"wgCategories":[],"wgBreakFrames":false,"wgPageContentLanguage":"en","wgPageContentModel":"wikitext","wgSeparatorTransformTable":["",""],"wgDigitTransformTable":["",""],"wgDefaultDateFormat":"dmy","wgMonthNames":["","January","February","March","April","May","June","July","August","September","October","November","December"],"wgMonthNamesShort":["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"wgRelevantPageName":"File:Macro_Toggle_Views_Visibility.png","wgRelevantArticleId":55129,"wgRequestId":"60270937ad3558083b771b81","wgUserId":3617,"wgUserEditCount":11,"wgUserRegistration":1580701024000,"wgUserNewMsgRevisionId":null,"wgIsProbablyEditable":true,"wgRelevantPageIsProbablyEditable":true,"wgRestrictionEdit":[],"wgRestrictionMove":[],"wgRestrictionUpload":[],"wgWikiEditorEnabledModules":{"toolbar":false,"preview":false,"publish":false},"wgULSAcceptLanguageList":["en-us","en"],"wgULSBabelLanguages":[],"wgULSCurrentAutonym":"English"});mw.loader.state({"site.styles":"ready","noscript":"ready","user.styles":"ready","user":"ready","user.options":"loading","user.tokens":"loading","filepage":"ready","mediawiki.action.view.filepage":"ready","ext.uls.pt":"ready","mediawiki.legacy.shared":"ready","mediawiki.legacy.commonPrint":"ready","mediawiki.sectionAnchor":"ready","mediawiki.skinning.interface":"ready","skins.vector.styles":"ready"});mw.loader.implement("user.options@0l2tdmj",function($,jQuery,require,module){mw.user.options.set({"uls-preferences":"{\"ime\":{\"language\":\"en\",\"previousLanguages\":[\"en\"],\"previousInputMethods\":[],\"imes\":{\"en\":\"system\"}}}"});});mw.loader.implement("user.tokens@110anu8",function ( $, jQuery, require, module ) {
+mw.user.tokens.set({"editToken":"50f0f817c17feb0ccacc6acbeb76d41b5e45e7b1+\\","patrolToken":"39beb7cb56072136b927497c90132b115e45e7b1+\\","watchToken":"b0ebc9fa9ccd6a4b0bca72a76a68670c5e45e7b1+\\","csrfToken":"50f0f817c17feb0ccacc6acbeb76d41b5e45e7b1+\\"});/*@nomin*/
+
+});mw.loader.load(["mediawiki.action.view.metadata","site","mediawiki.page.startup","mediawiki.user","mediawiki.hidpi","mediawiki.page.ready","mediawiki.searchSuggest","mediawiki.page.watch.ajax","ext.uls.init","ext.uls.geoclient","ext.uls.interface","skins.vector.js"]);});</script>
+<link rel="stylesheet" href="/wiki/load.php?debug=false&amp;lang=en&amp;modules=ext.uls.pt%7Cmediawiki.action.view.filepage%7Cmediawiki.legacy.commonPrint%2Cshared%7Cmediawiki.sectionAnchor%7Cmediawiki.skinning.interface%7Cskins.vector.styles&amp;only=styles&amp;skin=vector"/>
+<script async="" src="/wiki/load.php?debug=false&amp;lang=en&amp;modules=startup&amp;only=scripts&amp;skin=vector"></script>
+<meta name="ResourceLoaderDynamicStyles" content=""/>
+<link rel="stylesheet" href="/wiki/load.php?debug=false&amp;lang=en&amp;modules=site.styles&amp;only=styles&amp;skin=vector"/>
+<meta name="generator" content="MediaWiki 1.30.0"/>
+<link rel="alternate" type="application/x-wiki" title="Edit" href="/wiki/index.php?title=File:Macro_Toggle_Views_Visibility.png&amp;action=edit"/>
+<link rel="edit" title="Edit" href="/wiki/index.php?title=File:Macro_Toggle_Views_Visibility.png&amp;action=edit"/>
+<link rel="shortcut icon" href="/wiki/../images/favicon.ico"/>
+<link rel="search" type="application/opensearchdescription+xml" href="/wiki/opensearch_desc.php" title="FreeCAD Documentation (en)"/>
+<link rel="EditURI" type="application/rsd+xml" href="//www.freecadweb.org/wiki/api.php?action=rsd"/>
+<link rel="license" href="http://creativecommons.org/licenses/by/3.0/"/>
+<link rel="alternate" type="application/atom+xml" title="FreeCAD Documentation Atom feed" href="/wiki/index.php?title=Special:RecentChanges&amp;feed=atom"/>
+<!--[if lt IE 9]><script src="/resources/lib/html5shiv/html5shiv.min.js"></script><![endif]-->
+</head>
+<body class="mediawiki ltr sitedir-ltr mw-hide-empty-elt ns-6 ns-subject page-File_Macro_Toggle_Views_Visibility_png rootpage-File_Macro_Toggle_Views_Visibility_png skin-vector action-view">		<div id="mw-page-base" class="noprint"></div>
+		<div id="mw-head-base" class="noprint"></div>
+		<div id="content" class="mw-body" role="main">
+			<a id="top"></a>
+
+						<div class="mw-indicators mw-body-content">
+</div>
+			<h1 id="firstHeading" class="firstHeading" lang="en">File:Macro Toggle Views Visibility.png</h1>
+									<div id="bodyContent" class="mw-body-content">
+									<div id="siteSub" class="noprint">From FreeCAD Documentation</div>
+								<div id="contentSub"></div>
+												<div id="jump-to-nav" class="mw-jump">
+					Jump to:					<a href="#mw-head">navigation</a>, 					<a href="#p-search">search</a>
+				</div>
+				<div id="mw-content-text"><ul id="filetoc"><li><a href="#file">File</a></li>
+<li><a href="#filehistory">File history</a></li>
+<li><a href="#filelinks">File usage</a></li>
+<li><a href="#metadata">Metadata</a></li></ul><div class="fullImageLink" id="file"><a href="/wiki/images/d/d0/Macro_Toggle_Views_Visibility.png"><img alt="File:Macro Toggle Views Visibility.png" src="/wiki/images/d/d0/Macro_Toggle_Views_Visibility.png" width="64" height="64" /></a><div class="mw-filepage-resolutioninfo">No higher resolution available.</div></div>
+<div class="fullMedia"><a href="/wiki/images/d/d0/Macro_Toggle_Views_Visibility.png" class="internal" title="Macro Toggle Views Visibility.png">Macro_Toggle_Views_Visibility.png</a> &#8206;<span class="fileInfo">(64 × 64 pixels, file size: 4 KB, MIME type: <span class="mime-type">image/png</span>)</span>
+</div>
+<div id="mw-imagepage-content" lang="en" dir="ltr" class="mw-content-ltr"><div class="mw-parser-output">
+<!-- 
+NewPP limit report
+Cached time: 20200214002001
+Cache expiry: 86400
+Dynamic content: false
+CPU time usage: 0.000 seconds
+Real time usage: 0.001 seconds
+Preprocessor visited node count: 0/1000000
+Preprocessor generated node count: 2/1000000
+Post‐expand include size: 0/2097152 bytes
+Template argument size: 0/2097152 bytes
+Highest expansion depth: 0/40
+Expensive parser function count: 0/100
+-->
+<!--
+Transclusion expansion time report (%,ms,calls,template)
+100.00%    0.000      1 -total
+-->
+</div>
+<!-- Saved in parser cache with key freecadweb_db01-wiki_:pcache:idhash:55129-0!canonical and timestamp 20200214002001 and revision id 138367
+ -->
+</div><h2 id="filehistory">File history</h2>
+<div id="mw-imagepage-section-filehistory">
+<p>Click on a date/time to view the file as it appeared at that time.
+</p>
+<table class="wikitable filehistory">
+<tr><th></th><th>Date/Time</th><th>Thumbnail</th><th>Dimensions</th><th>User</th><th>Comment</th></tr>
+<tr><td>current</td><td class='filehistory-selected' style='white-space: nowrap;'><a href="/wiki/images/d/d0/Macro_Toggle_Views_Visibility.png">09:35, 17 January 2015</a></td><td><a href="/wiki/images/d/d0/Macro_Toggle_Views_Visibility.png"><img alt="Thumbnail for version as of 09:35, 17 January 2015" src="/wiki/images/d/d0/Macro_Toggle_Views_Visibility.png" width="120" height="120" /></a></td><td>64 × 64 <span style="white-space: nowrap;">(4 KB)</span></td><td><a href="/wiki/User:Piffpoof" class="mw-userlink" title="User:Piffpoof"><bdi>Piffpoof</bdi></a><span style="white-space: nowrap;"> <span class="mw-usertoollinks">(<a href="/wiki/index.php?title=User_talk:Piffpoof&amp;action=edit&amp;redlink=1" class="new mw-usertoollinks-talk" title="User talk:Piffpoof (page does not exist)">talk</a> | <a href="/wiki/Special:Contributions/Piffpoof" class="mw-usertoollinks-contribs" title="Special:Contributions/Piffpoof">contribs</a>)</span></span></td><td dir="ltr"></td></tr>
+</table>
+
+</div>
+<ul>
+<li id="mw-imagepage-reupload-link"><div class="plainlinks"><a class="external" rel="nofollow" href="//www.freecadweb.org/wiki/index.php?title=Special:Upload&amp;wpDestFile=Macro_Toggle_Views_Visibility.png&amp;wpForReUpload=1">Upload a new version of this file</a></div></li>
+</ul>
+<h2 id="filelinks">File usage</h2>
+<div id='mw-imagepage-section-linkstoimage'>
+<p>The following 20 pages link to this file:
+</p><ul class="mw-imagepage-linkstoimage">
+<li class="mw-imagepage-linkstoimage-ns0"><a href="/wiki/Macro_Toggle_Panels_Visibility" title="Macro Toggle Panels Visibility">Macro Toggle Panels Visibility</a></li>
+<li class="mw-imagepage-linkstoimage-ns0"><a href="/wiki/Macro_Toggle_Panels_Visibility/en" title="Macro Toggle Panels Visibility/en">Macro Toggle Panels Visibility/en</a></li>
+<li class="mw-imagepage-linkstoimage-ns0"><a href="/wiki/Macro_Toggle_Panels_Visibility/fr" title="Macro Toggle Panels Visibility/fr">Macro Toggle Panels Visibility/fr</a></li>
+<li class="mw-imagepage-linkstoimage-ns0"><a href="/wiki/Macro_Toggle_Panels_Visibility/it" title="Macro Toggle Panels Visibility/it">Macro Toggle Panels Visibility/it</a></li>
+<li class="mw-imagepage-linkstoimage-ns0"><a href="/wiki/Macros_recipes" title="Macros recipes">Macros recipes</a></li>
+<li class="mw-imagepage-linkstoimage-ns0"><a href="/wiki/Macros_recipes/de" title="Macros recipes/de">Macros recipes/de</a></li>
+<li class="mw-imagepage-linkstoimage-ns0"><a href="/wiki/Macros_recipes/en" title="Macros recipes/en">Macros recipes/en</a></li>
+<li class="mw-imagepage-linkstoimage-ns0"><a href="/wiki/Macros_recipes/fr" title="Macros recipes/fr">Macros recipes/fr</a></li>
+<li class="mw-imagepage-linkstoimage-ns0"><a href="/wiki/Macros_recipes/hr" title="Macros recipes/hr">Macros recipes/hr</a></li>
+<li class="mw-imagepage-linkstoimage-ns0"><a href="/wiki/Macros_recipes/it" title="Macros recipes/it">Macros recipes/it</a></li>
+<li class="mw-imagepage-linkstoimage-ns0"><a href="/wiki/Macros_recipes/ro" title="Macros recipes/ro">Macros recipes/ro</a></li>
+<li class="mw-imagepage-linkstoimage-ns0"><a href="/wiki/Macros_recipes/ru" title="Macros recipes/ru">Macros recipes/ru</a></li>
+<li class="mw-imagepage-linkstoimage-ns1198"><a href="/wiki/Translations:Macro_Toggle_Panels_Visibility/1/en" title="Translations:Macro Toggle Panels Visibility/1/en">Translations:Macro Toggle Panels Visibility/1/en</a></li>
+<li class="mw-imagepage-linkstoimage-ns1198"><a href="/wiki/Translations:Macro_Toggle_Panels_Visibility/1/fr" title="Translations:Macro Toggle Panels Visibility/1/fr">Translations:Macro Toggle Panels Visibility/1/fr</a></li>
+<li class="mw-imagepage-linkstoimage-ns1198"><a href="/wiki/Translations:Macro_Toggle_Panels_Visibility/1/it" title="Translations:Macro Toggle Panels Visibility/1/it">Translations:Macro Toggle Panels Visibility/1/it</a></li>
+<li class="mw-imagepage-linkstoimage-ns1198"><a href="/wiki/Translations:Macros_recipes/7/fr" title="Translations:Macros recipes/7/fr">Translations:Macros recipes/7/fr</a></li>
+<li class="mw-imagepage-linkstoimage-ns1198"><a href="/wiki/Translations:Macros_recipes/7/it" title="Translations:Macros recipes/7/it">Translations:Macros recipes/7/it</a></li>
+<li class="mw-imagepage-linkstoimage-ns1198"><a href="/wiki/Translations:Macros_recipes/98/en" title="Translations:Macros recipes/98/en">Translations:Macros recipes/98/en</a></li>
+<li class="mw-imagepage-linkstoimage-ns1198"><a href="/wiki/Translations:Macros_recipes/98/fr" title="Translations:Macros recipes/98/fr">Translations:Macros recipes/98/fr</a></li>
+<li class="mw-imagepage-linkstoimage-ns1198"><a href="/wiki/Translations:Macros_recipes/98/it" title="Translations:Macros recipes/98/it">Translations:Macros recipes/98/it</a></li>
+</ul>
+</div>
+<h2 id="metadata">Metadata</h2>
+<div class="mw-imagepage-section-metadata">This file contains additional information, probably added from the digital camera or scanner used to create or digitize it.
+If the file has been modified from its original state, some details may not fully reflect the modified file.<table id="mw_metadata" class="mw_metadata">
+<tr class="exif-xresolution collapsable"><th>Horizontal resolution</th><td>59.06 dpc</td></tr><tr class="exif-yresolution collapsable"><th>Vertical resolution</th><td>59.06 dpc</td></tr></table>
+</div>
+</div>					<div class="printfooter">
+						Retrieved from "<a dir="ltr" href="http://www.freecadweb.org/wiki/index.php?title=File:Macro_Toggle_Views_Visibility.png&amp;oldid=138367">http://www.freecadweb.org/wiki/index.php?title=File:Macro_Toggle_Views_Visibility.png&amp;oldid=138367</a>"					</div>
+				<div id="catlinks" class="catlinks catlinks-allhidden" data-mw="interface"></div>				<div class="visualClear"></div>
+							</div>
+		</div>
+		<div id="mw-navigation">
+			<h2>Navigation menu</h2>
+
+			<div id="mw-head">
+									<div id="p-personal" role="navigation" class="" aria-labelledby="p-personal-label">
+						<h3 id="p-personal-label">Personal tools</h3>
+						<ul>
+							<li id="pt-uls" class="active"><a href="#" class="uls-trigger autonym">English</a></li><li id="pt-userpage"><a href="/wiki/User:Spanner888" class="new" dir="auto" title="Your user page [.]" accesskey=".">Spanner888</a></li><li id="pt-mytalk"><a href="/wiki/User_talk:Spanner888" class="new" title="Your talk page [n]" accesskey="n">Talk</a></li><li id="pt-preferences"><a href="/wiki/Special:Preferences" title="Your preferences">Preferences</a></li><li id="pt-watchlist"><a href="/wiki/Special:Watchlist" title="A list of pages you are monitoring for changes [l]" accesskey="l">Watchlist</a></li><li id="pt-mycontris"><a href="/wiki/Special:Contributions/Spanner888" title="A list of your contributions [y]" accesskey="y">Contributions</a></li><li id="pt-logout"><a href="/wiki/index.php?title=Special:UserLogout&amp;returnto=File%3AMacro+Toggle+Views+Visibility.png" title="Log out">Log out</a></li>						</ul>
+					</div>
+									<div id="left-navigation">
+										<div id="p-namespaces" role="navigation" class="vectorTabs" aria-labelledby="p-namespaces-label">
+						<h3 id="p-namespaces-label">Namespaces</h3>
+						<ul>
+														<li id="ca-nstab-image" class="selected"><span><a href="/wiki/File:Macro_Toggle_Views_Visibility.png" title="View the file page [c]" accesskey="c">File</a></span></li>
+							<li id="ca-talk" class="new"><span><a href="/wiki/index.php?title=File_talk:Macro_Toggle_Views_Visibility.png&amp;action=edit&amp;redlink=1" rel="discussion" title="Discussion about the content page [t]" accesskey="t">Discussion</a></span></li>
+						</ul>
+					</div>
+										<div id="p-variants" role="navigation" class="vectorMenu emptyPortlet" aria-labelledby="p-variants-label">
+												<h3 id="p-variants-label">
+							<span>Variants</span>
+						</h3>
+
+						<div class="menu">
+							<ul>
+															</ul>
+						</div>
+					</div>
+									</div>
+				<div id="right-navigation">
+										<div id="p-views" role="navigation" class="vectorTabs" aria-labelledby="p-views-label">
+						<h3 id="p-views-label">Views</h3>
+						<ul>
+														<li id="ca-view" class="selected"><span><a href="/wiki/File:Macro_Toggle_Views_Visibility.png">Read</a></span></li>
+							<li id="ca-edit"><span><a href="/wiki/index.php?title=File:Macro_Toggle_Views_Visibility.png&amp;action=edit" title="Edit this page [e]" accesskey="e">Edit</a></span></li>
+							<li id="ca-history" class="collapsible"><span><a href="/wiki/index.php?title=File:Macro_Toggle_Views_Visibility.png&amp;action=history" title="Past revisions of this page [h]" accesskey="h">View history</a></span></li>
+							<li id="ca-watch" class="icon mw-watchlink"><span><a href="/wiki/index.php?title=File:Macro_Toggle_Views_Visibility.png&amp;action=watch" data-mw="interface" title="Add this page to your watchlist [w]" accesskey="w">Watch</a></span></li>
+						</ul>
+					</div>
+										<div id="p-cactions" role="navigation" class="vectorMenu" aria-labelledby="p-cactions-label">
+						<h3 id="p-cactions-label"><span>More</span></h3>
+
+						<div class="menu">
+							<ul>
+																<li id="ca-move"><a href="/wiki/Special:MovePage/File:Macro_Toggle_Views_Visibility.png" title="Move this page [m]" accesskey="m">Move</a></li>
+							</ul>
+						</div>
+					</div>
+										<div id="p-search" role="search">
+						<h3>
+							<label for="searchInput">Search</label>
+						</h3>
+
+						<form action="/wiki/index.php" id="searchform">
+							<div id="simpleSearch">
+							<input type="search" name="search" placeholder="Search FreeCAD Documentation" title="Search FreeCAD Documentation [f]" accesskey="f" id="searchInput"/><input type="hidden" value="Special:Search" name="title"/><input type="submit" name="fulltext" value="Search" title="Search the pages for this text" id="mw-searchButton" class="searchButton mw-fallbackSearchButton"/><input type="submit" name="go" value="Go" title="Go to a page with this exact name if it exists" id="searchButton" class="searchButton"/>							</div>
+						</form>
+					</div>
+									</div>
+			</div>
+			<div id="mw-panel">
+				<div id="p-logo" role="banner"><a class="mw-wiki-logo" href="/wiki/Main_Page"  title="Visit the main page"></a></div>
+						<div class="portal" role="navigation" id='p-' aria-labelledby='p--label'>
+			<h3 id='p--label'></h3>
+
+			<div class="body">
+									<ul>
+						<li id="n-Sidebar-getting_started"><a href="/wiki/Getting_started">Getting started</a></li><li id="n-sidebar-features"><a href="/wiki/Feature_list">Features</a></li><li id="n-Sidebar-screenshots"><a href="/wiki/Screenshots">Screenshots</a></li><li id="n-Sidebar-downloads"><a href="/wiki/Downloads">Downloads</a></li><li id="n-Sidebar-FAQ"><a href="/wiki/FAQ">FAQ</a></li><li id="n-Sidebar-forum"><a href="http://forum.freecadweb.org/" rel="nofollow">Forum</a></li><li id="n-Sidebar-tracker"><a href="http://www.freecadweb.org/tracker/" rel="nofollow">Tracker</a></li><li id="n-Sidebar-tutorials"><a href="/wiki/Tutorials">Tutorials</a></li><li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="A list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>					</ul>
+							</div>
+		</div>
+			<div class="portal" role="navigation" id='p-sidebar-users-doc' aria-labelledby='p-sidebar-users-doc-label'>
+			<h3 id='p-sidebar-users-doc-label'>Users documentation</h3>
+
+			<div class="body">
+									<ul>
+						<li id="n-sidebar-user-hub"><a href="/wiki/User_hub">User Hub</a></li><li id="n-sidebar-overview"><a href="/wiki/About_FreeCAD">Overview</a></li><li id="n-sidebar-installing"><a href="/wiki/Installing">Installing FreeCAD</a></li><li id="n-sidebar-navigate-in-3D"><a href="/wiki/Mouse_Model">Navigating in the 3D space</a></li><li id="n-sidebar-freecad-document"><a href="/wiki/Document_structure">The FreeCAD Document</a></li><li id="n-sidebar-preference-editor"><a href="/wiki/Preferences_Editor">Setting user preferences</a></li><li id="n-sidebar-workbench-concept"><a href="/wiki/Workbench_Concept">Working with workbenches</a></li><li id="n-sidebar-draft-wb"><a href="/wiki/Draft_Workbench">Drafting 2D objects</a></li><li id="n-sidebar-partdesign-wb"><a href="/wiki/PartDesign_Workbench">Working with constraints</a></li><li id="n-sidebar-mesh-wb"><a href="/wiki/Mesh_Workbench">Working with meshes</a></li><li id="n-sidebar-part-wb"><a href="/wiki/Part_Workbench">Working with 3D parts</a></li><li id="n-sidebar-arch-wb"><a href="/wiki/Arch_Workbench">Using architectural objects</a></li><li id="n-sidebar-drawing-wb"><a href="/wiki/Drawing_Workbench">Printing your work in 2D</a></li><li id="n-sidebar-raytracing-wb"><a href="/wiki/Ray_Tracing_Workbench">Rendering your work</a></li><li id="n-sidebar-robot-wb"><a href="/wiki/Robot_Workbench">Working with robots</a></li><li id="n-sidebar-interface-customize"><a href="/wiki/Interface_Customization">Customizing FreeCAD</a></li><li id="n-sidebar-commands-ref"><a href="/wiki/List_of_Commands">Commands Reference</a></li>					</ul>
+							</div>
+		</div>
+			<div class="portal" role="navigation" id='p-sidebar-powerusers-doc' aria-labelledby='p-sidebar-powerusers-doc-label'>
+			<h3 id='p-sidebar-powerusers-doc-label'>Powerusers documentation</h3>
+
+			<div class="body">
+									<ul>
+						<li id="n-sidebar-poweruser-hub"><a href="/wiki/Power_users_hub">Powerusers hub</a></li><li id="n-sidebar-discovering-python"><a href="/wiki/Introduction_to_Python">Discovering python</a></li><li id="n-sidebar-freecad-scripting"><a href="/wiki/FreeCAD_Scripting_Basics">FreeCAD scripting basics</a></li><li id="n-sidebar-work-with-macros"><a href="/wiki/Macros">Working with macros</a></li><li id="n-sidebar-mesh-scripting"><a href="/wiki/Mesh_Scripting">Mesh scripting</a></li><li id="n-sidebar-part-scripting"><a href="/wiki/Topological_data_scripting">Part scripting</a></li><li id="n-sidebar-access-3D-view"><a href="/wiki/Scenegraph">Accessing the 3D view</a></li><li id="n-sidebar-access-the-interface"><a href="/wiki/PySide">Accessing the interface</a></li><li id="n-sidebar-scripted-objects"><a href="/wiki/Scripted_objects">Scripted Objects</a></li><li id="n-sidebar-scripting-exemples"><a href="/wiki/Scripting_examples">Scripting examples</a></li><li id="n-sidebar-python-API"><a href="/wiki/Category:API">Python API</a></li>					</ul>
+							</div>
+		</div>
+			<div class="portal" role="navigation" id='p-sidebar-developer-doc' aria-labelledby='p-sidebar-developer-doc-label'>
+			<h3 id='p-sidebar-developer-doc-label'>Developers documentation</h3>
+
+			<div class="body">
+									<ul>
+						<li id="n-sidebar-developer-hub"><a href="/wiki/Developer_hub">Developers hub</a></li><li id="n-sidebar-help-freecad"><a href="/wiki/Help_FreeCAD">Helping FreeCAD</a></li><li id="n-sidebar-compiling"><a href="/wiki/Compiling">Compiling FreeCAD</a></li><li id="n-sidebar-licence"><a href="/wiki/Licence">License details</a></li><li id="n-sidebar-organization-chart"><a href="/wiki/Organization_chart">Organization chart</a></li><li id="n-sidebar-start-up"><a href="/wiki/Start_up_and_Configuration">Startup options</a></li><li id="n-sidebar-branding"><a href="/wiki/Branding">Branding</a></li><li id="n-sidebar-localisation"><a href="/wiki/Localisation">Translating FreeCAD</a></li>					</ul>
+							</div>
+		</div>
+			<div class="portal" role="navigation" id='p-sidebar-help-feedback' aria-labelledby='p-sidebar-help-feedback-label'>
+			<h3 id='p-sidebar-help-feedback-label'>Help &amp; Feedback</h3>
+
+			<div class="body">
+									<ul>
+						<li id="n-sidebar-help-forum"><a href="http://forum.freecadweb.org/viewforum.php?f=3" rel="nofollow">Help forum</a></li><li id="n-sidebar-discussion-forum"><a href="http://forum.freecadweb.org/viewforum.php?f=8" rel="nofollow">Discussion forum</a></li><li id="n-sidebar-report-bug"><a href="http://www.freecadweb.org/tracker/main_page.php" rel="nofollow">Report bugs</a></li><li id="n-sidebar-irc-channel"><a href="irc://chat.freenode.net/freecad" rel="nofollow">IRC channel</a></li><li id="n-sidebar-mailing-lists"><a href="http://sourceforge.net/mail/?group_id=49159" rel="nofollow">Mailing lists</a></li><li id="n-sidebar-facebook-page"><a href="http://www.facebook.com/FreeCAD" rel="nofollow">Facebook page</a></li><li id="n-sidebar-ui-translation-page"><a href="http://crowdin.net/project/freecad" rel="nofollow">UI translation page</a></li>					</ul>
+							</div>
+		</div>
+			<div class="portal" role="navigation" id='p-Meta' aria-labelledby='p-Meta-label'>
+			<h3 id='p-Meta-label'>Meta</h3>
+
+			<div class="body">
+									<ul>
+						<li id="n-recentchanges"><a href="/wiki/Special:RecentChanges" title="A list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li><li id="n-randompage"><a href="/wiki/Special:Random" title="Load a random page [x]" accesskey="x">Random page</a></li><li id="n-RSS-feeds"><a href="/wiki/Syndication_feeds">RSS feeds</a></li><li id="n-Links"><a href="/wiki/Interesting_links">Links</a></li>					</ul>
+							</div>
+		</div>
+			<div class="portal" role="navigation" id='p-tb' aria-labelledby='p-tb-label'>
+			<h3 id='p-tb-label'>Tools</h3>
+
+			<div class="body">
+									<ul>
+						<li id="t-whatlinkshere"><a href="/wiki/Special:WhatLinksHere/File:Macro_Toggle_Views_Visibility.png" title="A list of all wiki pages that link here [j]" accesskey="j">What links here</a></li><li id="t-recentchangeslinked"><a href="/wiki/Special:RecentChangesLinked/File:Macro_Toggle_Views_Visibility.png" rel="nofollow" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li><li id="t-upload"><a href="/wiki/Special:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li><li id="t-specialpages"><a href="/wiki/Special:SpecialPages" title="A list of all special pages [q]" accesskey="q">Special pages</a></li><li id="t-print"><a href="/wiki/index.php?title=File:Macro_Toggle_Views_Visibility.png&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li><li id="t-permalink"><a href="/wiki/index.php?title=File:Macro_Toggle_Views_Visibility.png&amp;oldid=138367" title="Permanent link to this revision of the page">Permanent link</a></li><li id="t-info"><a href="/wiki/index.php?title=File:Macro_Toggle_Views_Visibility.png&amp;action=info" title="More information about this page">Page information</a></li>					</ul>
+							</div>
+		</div>
+				</div>
+		</div>
+		<div id="footer" role="contentinfo">
+							<ul id="footer-info">
+											<li id="footer-info-lastmod"> This page was last edited on 17 January 2015, at 09:35.</li>
+											<li id="footer-info-copyright">Content is available under <a class="external" rel="nofollow" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution</a> unless otherwise noted.</li>
+									</ul>
+							<ul id="footer-places">
+											<li id="footer-places-privacy"><a href="/wiki/FreeCAD:Privacy_policy" title="FreeCAD:Privacy policy">Privacy policy</a></li>
+											<li id="footer-places-about"><a href="/wiki/FreeCAD:About" title="FreeCAD:About">About FreeCAD Documentation</a></li>
+											<li id="footer-places-disclaimer"><a href="/wiki/FreeCAD:General_disclaimer" title="FreeCAD:General disclaimer">Disclaimers</a></li>
+									</ul>
+										<ul id="footer-icons" class="noprint">
+											<li id="footer-copyrightico">
+							<a href="http://creativecommons.org/licenses/by/3.0/"><img src="/wiki/resources/assets/licenses/cc-by.png" alt="Creative Commons Attribution" width="88" height="31"/></a>						</li>
+											<li id="footer-poweredbyico">
+							<a href="//www.mediawiki.org/"><img src="/wiki/resources/assets/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" srcset="/wiki/resources/assets/poweredby_mediawiki_132x47.png 1.5x, /wiki/resources/assets/poweredby_mediawiki_176x62.png 2x" width="88" height="31"/></a>						</li>
+									</ul>
+						<div style="clear:both"></div>
+		</div>
+		<script>(window.RLQ=window.RLQ||[]).push(function(){mw.config.set({"wgPageParseReport":{"limitreport":{"cputime":"0.000","walltime":"0.001","ppvisitednodes":{"value":0,"limit":1000000},"ppgeneratednodes":{"value":2,"limit":1000000},"postexpandincludesize":{"value":0,"limit":2097152},"templateargumentsize":{"value":0,"limit":2097152},"expansiondepth":{"value":0,"limit":40},"expensivefunctioncount":{"value":0,"limit":100},"timingprofile":["100.00%    0.000      1 -total"]},"cachereport":{"timestamp":"20200214002001","ttl":86400,"transientcontent":false}}});});</script><script>(window.RLQ=window.RLQ||[]).push(function(){mw.config.set({"wgBackendResponseTime":637});});</script>
+	</body>
+</html>

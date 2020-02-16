@@ -69,15 +69,19 @@ currentRow = 1 #whatever row to start on ..for header, vars below.
 # ...and PR#2862: Configuration Table using Spreadsheet https://forum.freecadweb.org/viewtopic.php?f=17&t=42183
 # This data input = interim...POC shape-param-spreadsheet alias - expressions - code/FC all work nicely.
 csVars = [["csRadius", "csOriginX", "csOriginY", "csWidth", "csStartAngle", "csArcAngle", "curvedEnds"],
-          [30.0,        10.0,        -2.0,       4.0,       10,           60.0,      False],
           [041.0,      31.0,        -40.0,       3.0,       10.0,          20.0,      True],
-          [041.0,      31.0,        -40.0,       3.0,       70.0,          20.0,      False],
+          [041.0,      31.0,        -40.0,       3.0,       70.0,          20.0,      True],
           [041.0,      31.0,        -40.0,       3.0,       130.0,         20.0,      True],
-          [041.0,      31.0,        -40.0,       3.0,       190.0,         20.0,      False],
+          [041.0,      31.0,        -40.0,       3.0,       190.0,         20.0,      True],
           [041.0,      31.0,        -40.0,       3.0,       250.0,         20.0,      True],
-          [041.0,      31.0,        -40.0,       3.0,       310.0,         20.0,      False],
+          [041.0,      31.0,        -40.0,       3.0,       310.0,         20.0,      True],
           ]
 '''
+          [10.0,        40.0,        -55.0,       2.0,       180,          180.0,      True],
+          [20.0,        25.0,        -25.0,       4.0,       10,          100.0,      False],
+          [20.0,        25.0,        -25.0,       4.0,      130,          100.0,      False],
+          [20.0,        25.0,        -25.0,       4.0,      250,          100.0,      False],
+
 
           [041.0,      31.0,        -40.0,       3.0,       10.0,          20.0,      True],
           [041.0,      31.0,        -40.0,       3.0,       70.0,          20.0,      True],
