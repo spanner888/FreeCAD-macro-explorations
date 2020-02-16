@@ -1,0 +1,407 @@
+# -*- coding: utf-8 -*-
+
+# Macro Begin: FreeCAD\Macro\???????.FCMacro +++++++++++++++++++++++++++++++++++++++++++++++++
+import FreeCAD, Sketcher, Spreadsheet, math
+
+''' Create curved slot/s with either curved or flat ends
+    AND constrain using aliased variables auto created in spreadsheet.
+    
+    USAGE:
+        Edit csVars array so that:
+            one row data per shape desired.
+            each row contains values used to create shape.
+            
+        From start workbench, or empty document, run macro.
+        
+        Add slot/s to existing design.
+            Select desired sketch, or solid face, run macro.
+
+        After mcaro run:
+            Change any value in spreadhsheet to have drawing auto update.
+            Can use spreadsheet formula to update multiple values.
+
+    Limitation:
+        Cannot change flat/curved ends or number shapes AFTER macro has run, but all other properties can be changed.
+    
+'''
+
+__Name__ = 'CurvedSlot'
+__Comment__ = 'Create curved slot/s with either curved or flat ends'
+__Author__ = 'spanner888'
+__Version__ = '0.1.0'
+__Date__ = '2020-02-16'
+__License__ = 'LGPL-3.0-only'
+__Web__ = 'https://github.com/spanner888/FreeCAD-macro-explorations'
+__Wiki__ = ''
+__Icon__ = ''
+__Help__ = 'Edit csVars array, one row data per shape desired, with values used to create shape'
+__Status__ = 'Alpha'
+__Requires__ = 'Developed on v0.19.1952, briefly tested on v0.18, works, but some errors reported'
+__Communication__ = 'https://github.com/spanner888/FreeCAD-macro-explorations/issues'
+__Files__ = 'CurvedSlot.FCMacro'
+
+
+''' TODO:
+    
+    ?? radius param = outer radius, or change to centerline?
+
+    FIX: #REALY silly below!!!
+
+    ??option/version to pass in param. impact on FC param/expresions?
+    
+    cone template - usign vars that make sense for that situation
+'''
+
+
+#------------------------------------------------------
+printHelperMsgs = False
+
+yourSpreadsheetName = "sheetExps"
+yourSketchName = "Sketch"
+nameCol = 0
+nameRowStartIndex = 1   # 1st item = Index#, then var/alias names
+
+currentRow = 1 #whatever row to start on ..for header, vars below.
+
+#curvedSlotVars
+# imagine only ONE set var/alias names and then multiple SETS data = multiple objects
+# ...lke Part_families macro 
+# ...and PR#2862: Configuration Table using Spreadsheet https://forum.freecadweb.org/viewtopic.php?f=17&t=42183
+# This data input = interim...POC shape-param-spreadsheet alias - expressions - code/FC all work nicely.
+csVars = [["csRadius", "csOriginX", "csOriginY", "csWidth", "csStartAngle", "csArcAngle", "curvedEnds"],
+          [041.0,      31.0,        -40.0,       3.0,       10.0,          20.0,      True],
+          [041.0,      31.0,        -40.0,       3.0,       70.0,          20.0,      True],
+          [041.0,      31.0,        -40.0,       3.0,       130.0,         20.0,      True],
+          [041.0,      31.0,        -40.0,       3.0,       190.0,         20.0,      True],
+          [041.0,      31.0,        -40.0,       3.0,       250.0,         20.0,      True],
+          [041.0,      31.0,        -40.0,       3.0,       310.0,         20.0,      True],
+          ]
+'''
+          [10.0,        40.0,        -55.0,       2.0,       180,          180.0,      True],
+          [20.0,        25.0,        -25.0,       4.0,       10,          100.0,      False],
+          [20.0,        25.0,        -25.0,       4.0,      130,          100.0,      False],
+          [20.0,        25.0,        -25.0,       4.0,      250,          100.0,      False],
+
+
+          [041.0,      31.0,        -40.0,       3.0,       10.0,          20.0,      True],
+          [041.0,      31.0,        -40.0,       3.0,       70.0,          20.0,      True],
+          [041.0,      31.0,        -40.0,       3.0,       130.0,         20.0,      True],
+          [041.0,      31.0,        -40.0,       3.0,       190.0,         20.0,      True],
+          [041.0,      31.0,        -40.0,       3.0,       250.0,         20.0,      True],
+          [041.0,      31.0,        -40.0,       3.0,       310.0,         20.0,      True],
+
+          ]
+'''
+#REALY silly way iterate over spreadsheet cols - just get past here till sort out later :)
+cols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q,R,S', 'T', 'U', 'X', 'Y', 'Z']
+#------------------------------------------------------
+
+def makeCellRange(cStart, cEnd):
+    return (cStart + ":" + cEnd)
+
+def createSpreadsheetAliasedVarSets():
+	# add to existing spreadsheet one dataset /row
+    # NB: transposing from Row/col to col/row
+    for row in range (len(csVars)):
+        if row != 0:                        #skip varnames/aliases
+            # Index# into index cell for the data set
+            ss.set(         cols[nameCol+row]  + str(nameRowStartIndex), str(row)) 
+            # chord formulas into bottom of each col.
+            # =2 * (B3 - B6 / 2) * sin((B7 - B8) / 2), BUT have to change B# to actaul col#
+            ss.set(         cols[nameCol+row]  + str(nameRowStartIndex+len(csVars[0])+2), 
+                            str("=2*(" + cols[nameCol+row] + "3-" + cols[nameCol+row] + "6/2)*sin((" + 
+                                cols[nameCol+row] + "7-" + cols[nameCol+row] + "8)/2)"))
+            # curvedEnds boolean can't be used as alias, as requires re-running macro to change from curved to flat ends!
+            # so skip alias on last col (tranposed to last row)
+            for col in range (len(csVars[0])-1):
+                ss.set(     cols[nameCol+row]  + str(nameRowStartIndex+col+1), str(csVars[row][col])) 
+                ss.setAlias(cols[nameCol+row]  + str(nameRowStartIndex+col+1), str(csVars[0][col]) + str(row)) 
+
+def checkAliasSet(vars, printMsg = False):
+    localshapeDataSetIndex = 0
+    # skip 1st row data, it has var names, not data.
+    for shapeData in vars[1:]:
+        if printMsg: print("checkAliasSet: ", localshapeDataSetIndex, shapeData)
+        # check if ALL aliases for this entire shape exist.
+        validAliasSet = True
+        # curvedEnds boolean can't be used as alias, as requires re-running macro to change from curved to flat ends!
+        for i in range (len(shapeData)-1):
+            cellAlias = (str(vars[0][i]) + str(localshapeDataSetIndex+1))
+            try:
+                someValue = ss.get(cellAlias)
+                if printMsg: print("\t", i, " alias ", cellAlias, someValue)
+            except:
+                print("\t", i, "EXCEPTION alias>>>>>>", cellAlias)
+                validAliasSet = False
+        if not validAliasSet:
+            print("WARNING checkAliasSet: Incomplete Shape spreadsheet alias set for shape.\n\t Details above. Shape NOT created!", localshapeDataSetIndex)
+        localshapeDataSetIndex +=1
+    print()
+    return validAliasSet
+
+def incHelper(gc, cc, geoCnt, constraintCnt, msg = "", printMsg = False):
+    # just so less lines in main code - easier to count up/back for constrain# etc
+    gc += geoCnt
+    cc += constraintCnt
+    if printMsg:
+        print(msg, gc, cc)
+    return gc, cc
+
+def expHelper(constraintIndex, constraintVar, equation = ""):
+    # couple vars, JUST to make constraint/expression code lines short & easier compare....
+    #sk.setExpression('Constraints[12]', u'sheetExps.csStartAngle1')
+    c1 = "Constraints["
+    c2 = "sheetExps."
+
+    substVar1 = c1+ str(constraintIndex) + "]"
+    substVar2 = c2 + constraintVar + equation
+    #print(substVar1, substVar2)
+    sk.setExpression(substVar1, substVar2)
+    # Guess do not want change MANY expressions at once, without a recompute - else constraints/sketch liable to break
+    # SO recompute after EVERY expression added!
+    doc.recompute()
+    
+# create ALL valid slots & constraints.   
+def curvedSlot(vars):
+    sdi = 1    #shapeDataSetIndex
+    # check if ALL aliases for this entire shape exist.
+    doc.recompute()
+    validAliasSet = checkAliasSet(vars)
+    for shapeData in vars[1:]:
+        print("curvedSlot: ", sdi, shapeData)
+        # if have ENTIRE set valid aliases, create this shape, else report & skip creating this shape
+        if validAliasSet: 
+            # local vars with meaningful names AND angles to radians!
+            # get values from ss Alias..NOT from passed in data - only use that for alias names & loop indexes
+            a = str(vars[0][0]) + str(sdi)
+            slotOuterRadius        = [ss.get(a), a]
+            a = str(vars[0][1]) + str(sdi)
+            x                      = [ss.get(a), a]
+            a = str(vars[0][2]) + str(sdi)
+            y                      = [ss.get(a), a]
+            a = str(vars[0][3]) + str(sdi)
+            slotWidth              = [ss.get(a), a]
+            a = str(vars[0][4]) + str(sdi)
+            startAngleDegrees      = [ss.get(a), a]
+            startAngleRadians      = math.radians(ss.get(a))
+            a = str(vars[0][5]) + str(sdi)
+            arcAngleDegrees        = [ss.get(a), a]
+            arcAngleRadians        = math.radians(ss.get(a))
+            
+            # curvedEnds boolean can't be used as alias, as requires re-running macro to change from curved to flat ends!
+            curvedEnds             = shapeData[6]
+
+            # sk.GeometryCount DOES NOT CHANGE UNTIL way below: sk.addGeometry(geoList,False)
+            # So, save count PRIOR, & update during, ie MORE generic if OTHER items already in sketch!
+            gc = sk.GeometryCount    
+            cc = sk.ConstraintCount    
+            geoList = []
+            conList = []
+            tu = FreeCAD.Units.parseQuantity
+            
+            # 1. outer arc
+            #                Part.ArcOfCircle( Part.Circle(center,axis,radius),startAngleRadians,arcAngleRadians )
+            geoList.append(Part.ArcOfCircle(Part.Circle(
+                            App.Vector(x[0],y[0],0),
+                            App.Vector(0,0,1),slotOuterRadius[0]),startAngleRadians,startAngleRadians+arcAngleRadians))
+            # arc = 2x vertex AND 1x arc center VERTEX, BUT STILL only edge = +1 gc!!!
+            (gc, cc) = incHelper(gc, cc, 1, 0, "\t1. outer arc: ", printHelperMsgs)
+
+            # 2. inner arc
+            geoList.append(Part.ArcOfCircle(Part.Circle(
+                            App.Vector(x[0],y[0],0),
+                            App.Vector(0,0,1),slotOuterRadius[0] - slotWidth[0]),
+                            startAngleRadians,startAngleRadians+arcAngleRadians))
+            (gc, cc) = incHelper(gc, cc, 1, 0, "\t1. inner arc: ", printHelperMsgs)
+            # constrain BOTH arc centers, set radius and arc angle
+            if curvedEnds:
+                conList.append(Sketcher.Constraint('Coincident',gc -2, 3, gc -1, 3))
+                (gc, cc) = incHelper(gc, cc, 0, 1, "\t Add Coincident constraint ONLY for curved ends: ", printHelperMsgs)
+            # Distances x/y axis (ie the -1, 1 & -1,2) to the arc center points
+            conList.append(Sketcher.Constraint('DistanceX',-1,1,gc-1,3,x[0])) 
+            conList.append(Sketcher.Constraint('DistanceY',-1,2,gc-1,3,y[0])) 
+            conList.append(Sketcher.Constraint('Angle',gc -2, arcAngleRadians))
+            conList.append(Sketcher.Constraint('Radius',gc -2, slotOuterRadius[0]))
+            (gc, cc) = incHelper(gc, cc, 0, 4, "\t end 2 main arcs & constraints: ", printHelperMsgs)
+
+            #2 curved or flat ends
+            if curvedEnds:
+                startCenterX = x[0] + (slotOuterRadius[0]-slotWidth[0]/2) * math.cos(startAngleRadians);
+                startCenterY = y[0] + (slotOuterRadius[0]-slotWidth[0]/2) * math.sin(startAngleRadians);
+                endCenterX = x[0] + (slotOuterRadius[0]-slotWidth[0]/2) * math.cos(startAngleRadians+arcAngleRadians);
+                endCenterY = y[0] + (slotOuterRadius[0]-slotWidth[0]/2) * math.sin(startAngleRadians+arcAngleRadians);
+                
+                ''' Imagine arc starts near x50, y50, & rises towards x20, y200 ..just to picture this approx.
+                    Part.ArcOfCircle(Part.Circle(center,axis,radius),startAngleRadians,arcAngleRadians )
+                    'lower'/1st end arc
+                    An arc is drawn from center point out to first vertex, then around arc to end vertex.
+                    BOTH those directions, set which way arc will curve.
+                '''
+                geoList.append(Part.ArcOfCircle(Part.Circle(
+                                App.Vector(startCenterX, startCenterY, 0),
+                                App.Vector(0,0,1),slotWidth[0]/2),
+                                startAngleRadians-math.pi, startAngleRadians)) 
+                # constrain this end arc to both long slot arcs
+                conList.append(Sketcher.Constraint('Tangent',gc -1, 1, gc -0, 1))
+                conList.append(Sketcher.Constraint('Tangent',gc -2, 1, gc -0, 2))
+                conList.append(Sketcher.Constraint('Radius',gc -0, slotWidth[0]/2))
+                (gc, cc) = incHelper(gc, cc, 1, 3, "\t1st curved end: ", printHelperMsgs)
+                
+                # 'upper'/2nd end arc
+                geoList.append(Part.ArcOfCircle(Part.Circle(
+                                App.Vector(endCenterX, endCenterY, 0),
+                                App.Vector(0,0,1),slotWidth[0]/2),
+                                arcAngleRadians, arcAngleRadians-math.pi)) 
+                conList.append(Sketcher.Constraint('Tangent',gc -2, 2, gc -0, 2))
+                conList.append(Sketcher.Constraint('Tangent',gc -3, 2, gc -0, 1))
+                (gc, cc) = incHelper(gc, cc, 1, 2, "\t2nd curved end: ", printHelperMsgs)
+
+                ''' final contraint = rotation angle of slot. Requires a contruction line.
+                    so doing as LAST item, else changes relative gc(S) above!
+                    NB toggle of construction is further below AFTER added geom & constraints to sk.
+                '''
+                geoList.append(Part.LineSegment(
+                                App.Vector(x[0],
+                                           y[0], 0),
+                                App.Vector(x[0]+(slotOuterRadius[0]-slotWidth[0])*math.cos(startAngleRadians),
+                                           y[0]+(slotOuterRadius[0]-slotWidth[0])*math.sin(startAngleRadians),0)))
+                conList.append(Sketcher.Constraint('Coincident',gc, 1, gc-3, 3))
+                conList.append(Sketcher.Constraint('Coincident',gc, 2, gc-3, 1))
+                conList.append(Sketcher.Constraint('Angle',gc, startAngleRadians))
+                (gc, cc) = incHelper(gc, cc, 1, 3, "\t Construction line, helps set slot start angle: ", printHelperMsgs)
+               
+                ''' >>have to add ALL lines/arcs BEFORE next line!!!!
+                 edges/vertexes ONLY created BELOW. Above = geom eg ArcOfcircle, LineSegment,....
+                 '''
+                sk.addGeometry(geoList,False)
+                if printHelperMsgs:
+                    countCl = 0
+                    for i in (conList): 
+                        print("\t", countCl, i)
+                        countCl += 1
+                sk.addConstraint(conList)
+                sk.toggleConstruction(gc-1)   # the line used to set start angle of slot.
+                doc.recompute()
+
+                # Change relevant EXISTING contraints to use EXPRESIONS. Alt method oculd be use datum style.
+                if printHelperMsgs: print("\tcurved end curved slot", gc, cc, sk.ConstraintCount)
+
+                expHelper(sk.ConstraintCount-12, x[1])
+                expHelper(sk.ConstraintCount-11, y[1])
+                expHelper(sk.ConstraintCount-10, arcAngleDegrees[1])
+                expHelper(sk.ConstraintCount-9, slotOuterRadius[1])
+                expHelper(sk.ConstraintCount-6, slotWidth[1], "/2")
+                expHelper(sk.ConstraintCount-1, startAngleDegrees[1])
+                
+                if printHelperMsgs:
+                    for i in sk.ExpressionEngine: print (i[0]," = ",i[1])
+            else:
+                # 1st flat end 
+                geoList.append(Part.LineSegment(
+                                App.Vector(x[0]+(slotOuterRadius[0]-slotWidth[0])*math.cos(startAngleRadians),
+                                           y[0]+(slotOuterRadius[0]-slotWidth[0])*math.sin(startAngleRadians),0), 
+                                App.Vector(x[0]+(slotOuterRadius[0])*math.cos(startAngleRadians),
+                                           y[0]+(slotOuterRadius[0])*math.sin(startAngleRadians),0)))
+                conList.append(Sketcher.Constraint('Distance',gc,slotWidth[0])) 
+                conList.append(Sketcher.Constraint('Perpendicular',gc -2, 1, gc + 0, 2))
+                conList.append(Sketcher.Constraint('Perpendicular',gc -1, 1, gc + 0, 1))
+                
+                conList.append(Sketcher.Constraint('Angle',gc,startAngleRadians))   
+                (gc, cc) = incHelper(gc, cc, 1, 4, "\t\t1st flat end: ", printHelperMsgs)
+
+                #2nd flat end
+                geoList.append(Part.LineSegment(
+                                App.Vector(x[0]+(slotOuterRadius[0]-slotWidth[0])*math.cos(startAngleRadians+arcAngleRadians),
+                                           y[0]+(slotOuterRadius[0]-slotWidth[0])*math.sin(startAngleRadians+arcAngleRadians),0), 
+                                App.Vector(x[0]+(slotOuterRadius[0])*math.cos(startAngleRadians+arcAngleRadians),
+                                           y[0]+(slotOuterRadius[0])*math.sin(startAngleRadians+arcAngleRadians),0)))
+                conList.append(Sketcher.Constraint('Perpendicular',gc -3, 2, gc + 0, 2))
+                conList.append(Sketcher.Constraint('Perpendicular',gc -2, 2, gc + 0, 1))
+                (gc, cc) = incHelper(gc, cc, 1, 2, "\t\tend FLAT ended curved shape: ", printHelperMsgs)
+            
+                # >>have to add ALL lines/arcs BEFORE next line!!!!
+                # Also seems as though edges/vertexes ONLY created BELOW. Above exist as geo eg ArcOfcircle, LineSegment,....
+                sk.addGeometry(geoList,False)
+                sk.addConstraint(conList)
+                doc.recompute()
+
+                # Change relevant EXISTING contraints to use EXPRESIONS. Alt method oculd be use datum style.
+                if printHelperMsgs: print("\t FLAT ended curved slot", gc, cc, sk.ConstraintCount)
+
+                expHelper(sk.ConstraintCount-10, x[1])
+                expHelper(sk.ConstraintCount-9, y[1])
+                expHelper(sk.ConstraintCount-8, arcAngleDegrees[1])
+                expHelper(sk.ConstraintCount-7, slotOuterRadius[1])
+                expHelper(sk.ConstraintCount-6, slotWidth[1], "/2")
+                expHelper(sk.ConstraintCount-3, startAngleDegrees[1])
+                
+                if printHelperMsgs:
+                    for i in sk.ExpressionEngine: print (i[0]," = ",i[1])
+
+        sdi += 1
+
+######################################################################################
+
+# Init stuff
+doc = App.activeDocument()
+if(doc == None):
+    doc = App.newDocument()
+
+# TODO: Should add/allow use top level sketch or as a "Part Design - Body - Sketch"
+sk = App.activeDocument().getObject(yourSketchName)
+if(sk == None):
+    sk = App.activeDocument().addObject("Sketcher::SketchObject",yourSketchName)
+
+# if not exist, create dedicated spreadsheet, populate with variables, set variable aliases
+ss = App.activeDocument().getObject(yourSpreadsheetName)
+if(ss == None):
+    ss = App.activeDocument().addObject('Spreadsheet::Sheet',yourSpreadsheetName)
+
+    ss.set(cols[nameCol+1]    + str(nameRowStartIndex), 'Adjusting values,\nchanges size of\n*EACH* slot.') 
+    ss.setRowHeight(str(nameRowStartIndex), 50)
+    ss.set(cols[nameCol+3] + str(nameRowStartIndex), 'Expression alias\n= Var name\nfrom LHS+Index#') 
+    nameRowStartIndex +=1
+    ss.set(cols[nameCol]    + str(nameRowStartIndex), 'cSlot Index#') 
+    '''
+    App.ActiveDocument.recompute()
+    App.getDocument('Unnamed1').getObject('sheetExps').setStyle('A1:A1', 'bold')
+    App.getDocument('Unnamed1').getObject('sheetExps').setBackground('A1:A1', (0.000000,1.000000,1.000000,1.000000))
+    App.ActiveDocument.recompute()
+    App.getDocument('Unnamed1').getObject('sheetExps').setStyle('A2:A2', 'bold')
+    App.ActiveDocument.recompute()
+    App.getDocument('Unnamed1').getObject('sheetExps').setAlignment('A4:A4', 'right|vcenter|vimplied')
+    App.ActiveDocument.recompute()
+    '''
+    #init spreadsheet LHS = var/alias names (just LHS col, not each data col)
+    # curvedEnds boolean can't be used as alias, as requires re-running macro to change from curved to flat ends!
+    for var in range(len(csVars[0])-1):
+        ss.set(cols[nameCol] + str(nameRowStartIndex+var+1), csVars[0][var])
+    '''
+    print(ss.getRowHeight(str(1)))
+    print('....')
+    print(ss.getRowHeight(cols[nameCol] + str(nameRowStartIndex+len(csVars[0])+2)))
+    print(ss.getRowHeight(str(nameRowStartIndex+len(csVars[0])+2)))
+    '''
+    
+    ss.set(cols[nameCol] + str(nameRowStartIndex+len(csVars[0])+1), "Calculations\nbelow. Please\ndon't change")
+    rangeStartCell = str(cols[nameCol] + str(nameRowStartIndex+len(csVars[0])+1))
+    rangeEndCell   = str(cols[nameCol] + str(nameRowStartIndex+len(csVars[0])+1))
+    ss.setStyle(makeCellRange(rangeStartCell, rangeEndCell), 'bold')
+    #only need row#, NOT full cell address!!!
+    ss.setRowHeight(str(nameRowStartIndex+len(csVars[0])+1), 50)
+
+    ss.set(cols[nameCol] + str(nameRowStartIndex+len(csVars[0])+2), "arc span")
+
+    createSpreadsheetAliasedVarSets()
+    doc.recompute()     #<<<<<<<<<<<<<<<<<<< the fix!!! (ie fails 1st time if this not here!)
+    #checkAliasSet(csVars)
+    
+# create all curved slots existing with COMPLETE sets spreadsheet aliases ...BUT looping using above csVars!!!
+curvedSlot(csVars)
+
+doc.recompute()
+#Gui.activeDocument().activeView().viewIsometric()
+Gui.activeDocument().activeView().viewTop()
+Gui.SendMsgToActiveView("ViewFit")
+
+# Macro End: +++++++++++++++++++++++++++++++++++++++++++++++++
