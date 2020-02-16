@@ -3,7 +3,7 @@
 # Macro Begin: FreeCAD\Macro\???????.FCMacro +++++++++++++++++++++++++++++++++++++++++++++++++
 import FreeCAD, Sketcher, Spreadsheet, math
 
-''' Create curved slot/s with either curved or flat ends 
+''' Create curved slot/s with either curved or flat ends
     AND constrain using aliased variables auto created in spreadsheet.
     
     USAGE:
@@ -25,6 +25,22 @@ import FreeCAD, Sketcher, Spreadsheet, math
     
 '''
 
+__Name__ = 'CurvedSlot'
+__Comment__ = 'Create curved slot/s with either curved or flat ends'
+__Author__ = 'spanner888'
+__Version__ = '0.1.0'
+__Date__ = '2020-02-16'
+__License__ = 'LGPL-3.0-only'
+__Web__ = 'https://github.com/spanner888/FreeCAD-macro-explorations'
+__Wiki__ = ''
+__Icon__ = ''
+__Help__ = 'Edit csVars array, one row data per shape desired, with values used to create shape'
+__Status__ = 'Alpha'
+__Requires__ = 'Developed on v0.19.1952, briefly tested on v0.18, works, but some errors reported'
+__Communication__ = 'https://github.com/spanner888/FreeCAD-macro-explorations/issues'
+__Files__ = 'CurvedSlot.FCMacro'
+
+
 ''' TODO:
     
     ?? radius param = outer radius, or change to centerline?
@@ -33,6 +49,7 @@ import FreeCAD, Sketcher, Spreadsheet, math
 
     ??option/version to pass in param. impact on FC param/expresions?
     
+    cone template - usign vars that make sense for that situation
 '''
 
 
@@ -45,21 +62,6 @@ nameCol = 0
 nameRowStartIndex = 1   # 1st item = Index#, then var/alias names
 
 currentRow = 1 #whatever row to start on ..for header, vars below.
-
-# Vars here from cone to flattened ring
-# need changing about to reflect just curved slot!
-coneSlope = 45                  # Cone Slope ANGLE :- From  view of the LED RING:
-                                #   0 degree = flat ring, LED pointing straight down. 
-                                #   5 deg LED slight angles inwards…
-                                # THIS prob opposite ie 90-coneSlope to spreadsheet calcs
-dB = 70                         # dia Base
-rH = 9                          #slope height of cone edge segment, ie LED strip width
-
-#Calculations
-#--------------------------------------------------------
-hT =(dB/2)*math.tan(coneSlope)          # vert height truncated cone
-r = math.sqrt((dB/2 * dB/2) + (hT*hT))  # outer radius
-#------------------------------------------------------
 
 #curvedSlotVars
 # imagine only ONE set var/alias names and then multiple SETS data = multiple objects
