@@ -1,0 +1,425 @@
+# -*- coding: utf-8 -*-
+
+__Author__ = 'spanner888'
+__Version__ = '0.1.0'
+__Date__ = '2020-02-23'
+__License__ = 'LGPL-3.0-only'
+__Web__ = 'https://github.com/spanner888/FreeCAD-macro-explorations'
+
+''' CNC bed outline, with:-
+    - optional overhangs
+    - 4x countersunk bearing mount hole sets
+    - 4x countersunk ball screw drive bracket
+    - X1*Y1 nut insert holes for clamps
+    - X2*Y2 holes for locating pins
+    
+    2020-02 now using part design & 2nd sketch to improve pocketing/path-ops
+		- MANUALLY create PD body/sketch, leave sk open
+		- set macro to do bottom {bottom_sketch = True}, run
+		- close sk, then pad sketch
+		- select top pad, click new sk
+		- leave new sk open
+		- cfg macro for top {bottom_sketch = False}, run
+		- select 2nd SK (NOT pad top face)
+		- click pocket ...creates pockets that do NOT go all way through
+				do NOT select reverse - else can't get op depth below top surface
+
+        Now for the Paths:-
+            edgeSelectionHelper macro has cfg
+                - works well {for PREV version this macro & prob this ver} - ie can in/exclude countersinks
+            trying Helix with pocket & holes    
+                - sel face, use base obj - reset, sort/delete hole to create targeted operations
+
+'''
+
+'''TO DO
+# >> when adding NEW Y drive or rebuild MAKE # CNC_bed_lead_mount_holes regular spacing ie smae xy pos/offsets!!
+#    - add temp clamp screw holes AND LOCATING PINS {cf #252/261} - ie hold while cutting
+#        eg along centerlines. maybe JUST outside bed ...
+#		these are BOTH for cutting the BED and later use to clamp/locate jobs
+#    - MOVE clamp holes so NOT over linear rails (in case bolts protrude under!!!
+#        eg move out towards edge
+#    - DO countersink insert holes on bed TOP side - so can use cover bolts & keep swarf out of clamp holes
+#			??? will this *weaken* insert thread/clamping???
+
+
+#	- DECIDE Y travel - same & short 16mm blocks or LOOOONGER & LONG 16mm blocks???
+
+#	- OVERHANGS - SIMPLE already in place - need extend so EVERY side can be different!!!!
+#		- sides + GREAT FOR CLAMPS
+#		- RHS - size to go over stepper
+#		- LHS smaller??
+#		- rear for max travell, FRONT = some for clamp - say 30mm
+#	- make ALL depths as vars ...so can easily chnage with dif material (Al bed base AND for MDF sacrificial top!!!!)
+
+# 	- make ALL items same length/radius constrained =, ... so in drawing, can change ONE to change ALL!!
+#		AND THEN NO NEED TO TOTALLY REDO ENTIRE DRAWING, ESP INCLUDING THE PATHS/DEPTHS/POCKETS/....!!!!!!!!!
+#		...do via spreadsheet easier - as hard to find WHICH one all others equal to!
+# 	OR enable run ONLY selected parts of macro...or split all sep. ???IMPACT ON obj names/#s???????
+#	>>>ACTUALLY NOT HARD TO MANUALY MAKE = RADIUS IN SKETCH AND CHANGE HOLES, THEN UPDATE PATH!!!
+#		DID - worked well, easy!		
+		
+#  Dreaming:-
+#		- create paths here ...means easily KNOWING which GROUPS face/edge to iterate
+'''
+
+
+# Macro Begin: CNC_BED_upperY_16mm_SKETCH_v0@002.1.FCMacro ++++++++++++++++++++++++++++++++++++++++++++++
+import Draft, Part,PartGui 
+import FreeCAD
+import Sketcher
+from Sketcher import *  
+import FreeCAD as App
+from FreeCAD import Vector
+import Path
+from PathScripts import PathJob
+
+
+
+
+# select if doing BOTTOM or top sketch!!!!
+bottom_sketch = False
+
+
+
+
+
+
+# -----------------------------------------------------------------------
+#CNCbed vars{Part_Family_dimensions_v0.54}.ods
+
+#----------------------------------------
+# MyBigCNC_moving_bed	<<<NOW UPDATED HErE *ONLY* for 16mm
+#		...need to update/add to spreadsheet once confirmed......
+#	ie moves in Y direction			
+#	REALLY NEED CHANGE CORE lbc BEARING MOUNT X centerline			
+#	to be dependant (EQUAL) to the X axis linear rail mount centers			
+#	… or vice versa!!!!			
+
+###>>> Manually adding X/Y padding to bed size below
+pad_bed_edges = 40				  # add to EACH edge
+#mbc_y_X	 = 	270     			  #	SET BY Y RAIL-RAIL dist. Minimal Bed to OUTSIDE edge of linear block
+mbc_y_X	 = 	304     			  #	SET BY Y RAIL-RAIL dist. Minimal Bed to OUTSIDE edge of linear block
+								  # *BAD* way to measure as 8/16mm blocks dif size!!!!
+								  # better = ~242 = rail center-center + 2* 1/2 block width ie + 1x block width
+#mbc_x_Y	 = 	152        		  # Minimal Bed to OUTSIDE edge of linear block
+#mbc_x_Y	 = 	182        		  # Minimal Bed to OUTSIDE edge of linear block
+mbc_x_Y	 = 	250        			  # Minimal Bed to OUTSIDE edge of linear block >>LONGER get bed closer to tool at Y0
+mbc_x_Z	 = 	18.2          		  #	Bed thickness	<<<< Watch out need TOOL THAT LONG!!!!!
+mbc_x_x_rhs_overhang	 = 	45	  #	Bed overhang n/a. Just = width Y rails + mount width
+mbc_x_x_lhs_overhang	 = 	0	  #	Bed overhang n/a. Just = width Y rails + mount width
+mbc_x_y_front_overhang	 = 	100	  #	Bed overhang From center rail. not infinite, limited when bed travels fully to REAR.
+mbc_x_y_rear_overhang	 = 	50	  #	Bed overhang From center rail. 60 = extreme max – may rub!
+mbc_x_x_lbc	 = 	236.5	          #	EQUALS y RAIL TO RAIL CALCULATE?? linear_bearing_center to center
+mbc_x_y_lbc	 = 	120	          	  #	CALCULATE?? linear_bearing_center to center
+mbc_y_X_total	 = 	315	          #	CALCULATE?? Current TOTAL including all overhangs
+mbc_y_Y_total	 = 	302	          #	CALCULATE?? Current TOTAL including all overhangs
+#----------------------------------------
+				
+#----------------------------------------
+# LinearBearing_closed	below is 16mm
+# 	TBR16UU - ie the SHORT/STD length ones OR LONG one TBR16LUU
+#	ONLY dif is lbc_blk_L 42/85 AND lbo_holes_Cent_B
+#	==>> NB: naming based on MY pre-existing SRR bearings, so NOT MATCH source file:#250_Linear OPEN bearings TBR16UU TBR16LUU.jpg
+lmo_thrd_d	 = 	5	     	#	thread size
+lmo_thrd_pitch	 = 	0.8	 	#	
+lmo_thrd_z	 = 	8	     	#	Thread depth, hole may be deeper
+lbo_mhd	 = 	5.5	     	 	#	dia of mount hole – that bolt of thrd_d will fit into
+
+# 	TBR16UU - ie SHORT/STD length OR LONG one TBR16LUU
+#lbo_holes_Cent_B = 30	#	length along rod TBR16UU
+lbo_holes_Cent_B = 	60	#	length along rod TBR16LUU
+#lbc_blk_L	 = 	42	     #	block width TBR16UU
+lbc_blk_L	 = 	85	     #	block width TBR16LUU
+
+lbo_holes_Cent_C	 = 	50	#	Width
+lbc_blk_W	 = 	62	     	#	block WIDTH
+
+lbc_blk_F	 = 	18	     #	block core/center height/thickness
+#----------------------------------------
+
+#----------------------------------------
+#Bolt_head_hex_full	 M5	
+bhhf_d	 = 	9.5	     # to clear larger hex/pan & low profile heads
+bhhf_h	 = 	4.8	     #
+
+#Bolt_head_hex_low		
+#bhhf_d	 = 	9.35	     #
+#bhhf_h	 = 	3.5	     #
+
+#Bolt_head_hex_v_low		
+#bhhf_d	 = 	9.35	     #
+#bhhf_h	 = 	2.9	     #
+#----------------------------------------
+
+#----------------------------------------
+# CNC_bed_lead_mount_holes,     X1/y1 = LHS looking at bed from front of CNC				
+
+#    - mostly fyi - pad edges info - tool curently 98mm from Y edge of bed at mpos y=0
+#    ..and about 1mm INSIDE bed at extreme max Y travel
+#    => MOVE Y lead mount towards FRONT of cnc/bed!!!!
+#        ...failry close center or bit towards front
+# >>> SO ADDING A *Y* offest to below to move back.
+cblmh_y_offset = -90
+cblmh_x1	 = 	-21	    # 	all X measured from bed center line +/-
+cblmh_y1	 = 	cblmh_y_offset + 0	    # 	Y1 = 0,as a reference
+cblmh_x2	 = 	-11	    # 	
+cblmh_y2	 = 	cblmh_y_offset + 5	    # 	
+cblmh_x3	 = 	11	    # 	
+cblmh_y3	 = 	cblmh_y_offset + 5	    # 	
+cblmh_x4	 = 	23	    # 	
+cblmh_y4	 = 	cblmh_y_offset + 0	    # 	
+cblmh_x_edge_offset	 = 	65	    # 	X1 offset (inset) from edge of bed – add to ALL X
+insert_radius = 7.5/2
+#----------------------------------------
+
+
+#----------------------------------------
+# CNC_clamp
+cncc_t_d	 = 	8	  			  #	bolts M8 (both)
+cncc_t_head_w	 = 	17.7	  	  # T nut head
+cncc_t_head_l	 = 	27	  		  # T nut head
+cncc_clamp_extension	 = 	28	  #	clamp area extends from slot
+cncc_clamp_slot_travel	 = 	45	  #	bar moves this far, WIHT bolt in slot.
+cncc_clamp_bolt_edge_min =	20	  #	min dist from bolt hole center to bed edge
+cncc_clamp_length	 = 	100	  	  # total length
+cncc_clamp_matrix_rows = 5
+cncc_clamp_matrix_cols = 6
+cncc_clamp_edge_inset = 20		  # entire matrix INSET from edges this much
+#----------------------------------------
+
+#----------------------------------------
+# CNC_screws-locating_pins
+cnslp_t_d	 = 	3.05 			  #	after holes_test. 3.0 needs pliers insert = v hard.
+cnslp_clamp_matrix_rows = 6
+cnslp_clamp_matrix_cols = 5
+#----------------------------------------
+
+
+# sketch rectangle shape, with SOME constraints
+def sketchRect(centerX, centerY, sizeX, sizeY, padX, padY):
+	#print (sizeX, sizeY)
+	#print()
+	#outputs:
+	#304 250
+	
+	geoList = []
+	# temp adjust bed size, restore below...dumb way reduce coding of hole position
+	sizeX = sizeX +2*padX
+	sizeY = sizeY +2*padY
+	geoList.append(Part.LineSegment(App.Vector(centerX - sizeX / 2, centerY + sizeY / 2, 0),App.Vector(centerX + sizeX / 2, centerY + sizeY / 2, 0)))
+	geoList.append(Part.LineSegment(App.Vector(centerX + sizeX / 2, centerY + sizeY / 2, 0),App.Vector(centerX + sizeX / 2, centerY - sizeY / 2, 0)))
+	geoList.append(Part.LineSegment(App.Vector(centerX + sizeX / 2, centerY - sizeY / 2, 0),App.Vector(centerX - sizeX / 2, centerY - sizeY / 2, 0)))
+	geoList.append(Part.LineSegment(App.Vector(centerX - sizeX / 2, centerY - sizeY / 2, 0),App.Vector(centerX - sizeX / 2, centerY + sizeY / 2, 0)))
+	sizeX = sizeX -2*padX
+	sizeY = sizeY -2*padY
+
+	geoCount = sk.GeometryCount	# save count PRIOR, to make contraints MORE generic, in case OTHER items already in sketch!
+	#App.ActiveDocument.Sketch_CncBed.addGeometry(geoList,False)
+	sk.addGeometry(geoList,False)
+
+	conList = []
+	conList.append(Sketcher.Constraint('Coincident',geoCount + 0,2, geoCount + 1,1))
+	conList.append(Sketcher.Constraint('Coincident',geoCount + 1,2, geoCount + 2,1))
+	conList.append(Sketcher.Constraint('Coincident',geoCount + 2,2, geoCount + 3,1))
+	conList.append(Sketcher.Constraint('Coincident',geoCount + 3,2, geoCount + 0,1))
+	conList.append(Sketcher.Constraint('Horizontal',geoCount + 0))
+	conList.append(Sketcher.Constraint('Horizontal',geoCount + 2))
+	conList.append(Sketcher.Constraint('Vertical',geoCount + 1))
+	conList.append(Sketcher.Constraint('Vertical',geoCount + 3))
+	#App.ActiveDocument.Sketch_CncBed.addConstraint(conList)
+	sk.addConstraint(conList)
+
+def testLbcOutline():           # no holes or countersink!!
+    #######################################################################################
+	# TEST ONLY -{as another rectangle stuffs up desired outcome!}
+	# ...this is so cand compare BLOCK outline to mount holes pos or outer bed edge....
+	# 1x bearing rectangle shape, with SOME constraints
+
+	# bottom left
+	currentLBC_center_X = (lbc_blk_W - mbc_y_X) / 2
+	currentLBC_center_Y = (lbc_blk_L - mbc_x_Y) / 2
+	sketchRect(currentLBC_center_X, currentLBC_center_Y, lbc_blk_W, lbc_blk_L, 0, 0)	# print says 62 85 fro block size
+
+
+
+# 1x circle, *OPTIONAL* countersink
+def one_hole(center_X, center_Y, radius_hole, radius_countersink, countersink):
+	#print (center_X, center_Y)
+	sk.addGeometry(Part.Circle(App.Vector(center_X, center_Y, 0),App.Vector(0,0,1), radius_hole),False)
+	if countersink:
+		sk.addGeometry(Part.Circle(App.Vector(center_X, center_Y, 0),App.Vector(0,0,1), radius_countersink),False)
+
+def LBC_holes(center_X, center_Y, C, B, dia):   #4 circles, NO OPTION countersink (... call with larger dia)
+    #	NO NO NO can ALSO ADD extra hole for countersink, if countersink = True
+	#print (center_X, center_Y)
+	#outputs:
+	#-121.0 82.5
+	#121.0 82.5
+	#121.0 -82.5
+	#-121.0 -82.5
+	sk.addGeometry(Part.Circle(App.Vector(center_X + lbo_holes_Cent_C / 2, center_Y + lbo_holes_Cent_B / 2, 0),App.Vector(0,0,1), dia / 2),False)
+	sk.addGeometry(Part.Circle(App.Vector(center_X + lbo_holes_Cent_C / 2, center_Y - lbo_holes_Cent_B / 2, 0),App.Vector(0,0,1), dia / 2),False)
+	sk.addGeometry(Part.Circle(App.Vector(center_X - lbo_holes_Cent_C / 2, center_Y - lbo_holes_Cent_B / 2, 0),App.Vector(0,0,1), dia / 2),False)
+	sk.addGeometry(Part.Circle(App.Vector(center_X - lbo_holes_Cent_C / 2, center_Y + lbo_holes_Cent_B / 2, 0),App.Vector(0,0,1), dia / 2),False)
+	
+def LBC_x4_holes(dia):          #4x4 circles, NO OPTION countersink (... call with larger dia)
+	# Linear bearing mount holes ---------------------------------------------------------------
+	#Using LBC center from lbc_blk_W & lbc_blk_L to set LBC mount holes
+	# top left
+	currentLBC_center_X = (lbc_blk_W - mbc_y_X) / 2
+	currentLBC_center_Y = (-lbc_blk_L + mbc_x_Y) / 2
+	LBC_holes (currentLBC_center_X, currentLBC_center_Y, lbo_holes_Cent_C, lbo_holes_Cent_B, dia)
+
+	# top right
+	currentLBC_center_X = (-lbc_blk_W + mbc_y_X) / 2
+	currentLBC_center_Y = (-lbc_blk_L + mbc_x_Y) / 2
+	LBC_holes (currentLBC_center_X, currentLBC_center_Y, lbo_holes_Cent_C, lbo_holes_Cent_B, dia)
+
+	# bottom right
+	currentLBC_center_X = (-lbc_blk_W + mbc_y_X) / 2
+	currentLBC_center_Y = (lbc_blk_L - mbc_x_Y) / 2
+	LBC_holes (currentLBC_center_X, currentLBC_center_Y, lbo_holes_Cent_C, lbo_holes_Cent_B, dia)
+
+	# bottom left
+	currentLBC_center_X = (lbc_blk_W - mbc_y_X) / 2
+	currentLBC_center_Y = (lbc_blk_L - mbc_x_Y) / 2
+	LBC_holes (currentLBC_center_X, currentLBC_center_Y, lbo_holes_Cent_C, lbo_holes_Cent_B, dia)
+
+def leadMount_holes(dia):       #NO countersink - OPTION forced False!!!
+	# CNC_bed_lead_mount_holes WITH OPTIONAL countersink...the False! -----------------------------
+	one_hole(cblmh_x1, mbc_x_Y/2 - cblmh_x_edge_offset + cblmh_y1, dia/2, 0, False)
+	one_hole(cblmh_x2, mbc_x_Y/2 - cblmh_x_edge_offset + cblmh_y2, dia/2, 0, False)
+	one_hole(cblmh_x3, mbc_x_Y/2 - cblmh_x_edge_offset + cblmh_y3, dia/2, 0, False)
+	one_hole(cblmh_x4, mbc_x_Y/2 - cblmh_x_edge_offset + cblmh_y4, dia/2, 0, False)
+
+def nut_insert_holes(dia):      # NO countersink
+	# CNC_clamp nut inserts  ----------------------------------------
+	# for now, NOT making countersink from UNDerNEATH, just straight through hole - one size
+	for row in range(cncc_clamp_matrix_rows):
+		for col in range(cncc_clamp_matrix_cols):
+			# for x&y first part = starting pos, & 2nd part = offset for each additional hol in x/y
+	#		x = -((mbc_y_X - lbc_blk_W)/2) + (mbc_y_X - lbc_blk_W) * col/(cncc_clamp_matrix_cols-1)
+	#		y = -((mbc_x_Y - lbc_blk_L)/2) + (mbc_x_Y - lbc_blk_L) * row/(cncc_clamp_matrix_rows-1)
+	#		x = -30 + (mbc_y_X - 30*2) * col/(cncc_clamp_matrix_cols-1)
+	#		y = -30 + (mbc_x_Y - 30*2) * row/(cncc_clamp_matrix_rows-1)
+	# hard coded clamp hole from edge = 20mm
+	#		x = -((mbc_y_X - 40)/2) + (mbc_y_X - 40) * col/(cncc_clamp_matrix_cols-1)
+	#		y = -((mbc_x_Y - 40)/2) + (mbc_x_Y - 40) * row/(cncc_clamp_matrix_rows-1)
+	# now basing on bed size+{simple}padding AND still 20mm from edge!
+			x = -((mbc_y_X/2 + pad_bed_edges - cncc_clamp_edge_inset)) + (mbc_y_X + pad_bed_edges*2 - cncc_clamp_edge_inset*2) * col/(cncc_clamp_matrix_cols-1)
+			y = -((mbc_x_Y/2 + pad_bed_edges - cncc_clamp_edge_inset)) + (mbc_x_Y + pad_bed_edges*2 - cncc_clamp_edge_inset*2) * row/(cncc_clamp_matrix_rows-1)
+			one_hole(x, y, dia, 0, False)
+
+def screw_locating_pin_holes(): # NO countersink
+    for row in range(cnslp_clamp_matrix_rows):
+        for col in range(cnslp_clamp_matrix_cols):
+            # for x&y first part = starting pos, & 2nd part = offset for each additional hol in x/y
+            x = -((mbc_y_X - lbc_blk_W)/2) + (mbc_y_X - lbc_blk_W) * col/(cnslp_clamp_matrix_cols-1)
+    #		y = -(mbc_x_Y/2 - (lbc_blk_L - lbo_holes_Cent_B)) + (mbc_x_Y - lbc_blk_L/4) * row/(cnslp_clamp_matrix_rows-1)
+    #		y = -(mbc_x_Y + lbc_blk_L)/2 + (lbo_holes_Cent_B/2 + (mbc_x_Y - lbc_blk_L/4) * row/(cnslp_clamp_matrix_rows-1)
+            y = -mbc_x_Y/2 + (lbc_blk_L - lbo_holes_Cent_B)/2 + (mbc_x_Y - lbc_blk_L/4) * row/(cnslp_clamp_matrix_rows-1)
+            one_hole(x, y, cnslp_t_d/2, 0, False)
+
+#########################################################################
+#########################################################################
+#########################################################################
+
+
+
+doc=App.activeDocument()
+#if(App.activeDocument() == None):App.newDocument()
+
+if bottom_sketch:
+    ''' Part design sketch creation DIFFERENT ...for now assuming ALREADY CREATED!!!!
+    sk = App.activeDocument().getObject("Sketch_CncBed")
+    if(sk == None):
+        sk = App.activeDocument().addObject("Sketcher::SketchObject","Sketch_CncBed")
+    '''
+    Gui.getDocument('Unnamed').setEdit(App.getDocument('Unnamed').getObject('Body'),0,'Sketch.')
+    sk = App.getDocument('Unnamed').getObject('Sketch')
+    if(sk == None):
+        print('oh oh, no sketch obj??')
+        exit()
+    # BED rectangle shape, with SOME constraints
+    #sketchRect(0, 0, mbc_y_X, mbc_x_Y, 0, 0)
+    sketchRect(0, 0, mbc_y_X, mbc_x_Y, pad_bed_edges, pad_bed_edges)
+    ##########################################################################################################################
+    # HERE select which chunks to include in design
+    #   doc hole & c'cink DIA ... to work out next step of splitting into multiple jobs!!!
+
+    # CURRENTLY max tool dia with ONE flute cut acrylic = 4.0mm dia
+    # SO really SHOULD *POCKET* using FACES, not EDGE profile.
+    if (False):  # COUNTERSINKs - as they have dif finish depth
+        LBC_x4_holes(bhhf_d)            # 9.5
+        leadMount_holes(bhhf_d)         # 9.5 dia
+        App.Console.PrintMessage('1: Added: Countersink holes 9.5mm ....really SHOULD *POCKET* using FACES  with 4.0mm tool, not EDGE profile.\n')
+
+    # BELOW here CAN Pocket Edges
+    if (True):  #nut_insert_holes = large hole, but all the way through!
+        # This group min hole = 5.0mm dia
+        #   testLbcOutline()            # none  none
+        nut_insert_holes(insert_radius) # 7.5   none
+        App.Console.PrintMessage('2: Added: nut_insert_holes 7.5mm ... CAN EDGE profile 7.5mm holes with 4.0mm tool\n')
+
+    if (True):  # remaining Large holes
+        # This group min hole = 5.0mm dia
+        #   testLbcOutline()            # none  none
+        LBC_x4_holes(lmo_thrd_d)        # 5
+        leadMount_holes(lmo_thrd_d)     # 5  
+        App.Console.PrintMessage('3: Added: LARGE holes 5.0mm.....CAN EDGE profile 5.0mm holes with 4.0mm tool.\n')
+
+    if (True):  # small - Locating pin holes NO countersink
+        # This group min hole = 3.05mm dia
+        screw_locating_pin_holes()      # 3.05  none
+        App.Console.PrintMessage('4: Added: Locating pin holes 3.05mm.....CAN EDGE profile 3.0mm holes with <<2.0mm>> tool.\n')
+        
+else:
+    Gui.getDocument('Unnamed').setEdit(App.getDocument('Unnamed').getObject('Body'),0,'Sketch.001')
+    sk = App.getDocument('Unnamed').getObject('Sketch001')
+    if(sk == None):
+        print('oh oh, no TOP sketch obj or wrong name??')
+        exit()
+
+    if (True):  # COUNTERSINKs - as they have dif finish depth
+        LBC_x4_holes(bhhf_d)            # 9.5
+        leadMount_holes(bhhf_d)         # 9.5 dia
+        App.Console.PrintMessage('1: Added: Countersink holes 9.5mm ....really SHOULD *POCKET* using FACES  with 4.0mm tool, not EDGE profile.\n')
+
+############################################################################################################
+############################################################################################################
+
+''' part design different....
+# extrude the sketch ----RELIES ON DOC NAME = Unnamed (IE NOT Unnamed001 ETC!!!)
+f = FreeCAD.getDocument('Unnamed').addObject('Part::Extrusion', 'Extrude')
+f = App.getDocument('Unnamed').getObject('Extrude')
+f.Base = App.getDocument('Unnamed').getObject('Sketch_CncBed')
+f.DirMode = "Normal"
+f.DirLink = None
+f.LengthFwd = mbc_x_Z
+f.LengthRev = 0.000000000000000
+f.Solid = True
+f.Reversed = False
+f.Symmetric = False
+f.TaperAngle = 0.000000000000000
+f.TaperAngleRev = 0.000000000000000
+Gui.ActiveDocument.Extrude.ShapeColor=Gui.ActiveDocument.Sketch_CncBed.ShapeColor
+Gui.ActiveDocument.Extrude.LineColor=Gui.ActiveDocument.Sketch_CncBed.LineColor
+Gui.ActiveDocument.Extrude.PointColor=Gui.ActiveDocument.Sketch_CncBed.PointColor
+f.Base.ViewObject.hide()
+
+### Begin command Path_Job
+PathScripts.PathJobGui.Create(['Extrude'], 'C:/Users/spanner888/AppData/Roaming/FreeCAD/Macro\job_bCNC_v0.3_template.json')
+#       UNFORTUNATELY DIALOG LEFT OPEN!!! <<<SOMETIMES!!!!!
+### End command Path_Job
+# Gui.Selection.addSelection('Unnamed','Clone')
+
+print ('\n\t Now create job, THEN use the enumerateEdges_selected.FCMacro to select desired edges - prob needs tweaking !!!!')
+'''
+
+#doc.recompute()
+#Gui.activeDocument().activeView().viewIsometric()
+Gui.activeDocument().activeView().viewTop()
+Gui.SendMsgToActiveView("ViewFit")
+
+# Macro End: C:\Users\spanner888\AppData\Roaming\FreeCAD\Macro\frontPanelGeneric.FCMacro ++++++++++++++++++++++++++++++++++++++++++++++++
