@@ -78,7 +78,7 @@ from PathScripts import PathJob
 
 
 # select if doing BOTTOM or top sketch!!!!
-bottom_sketch = False
+bottom_sketch = True
 
 
 
@@ -198,38 +198,40 @@ cnslp_clamp_matrix_cols = 5
 
 # sketch rectangle shape, with SOME constraints
 def sketchRect(centerX, centerY, sizeX, sizeY, padX, padY):
-	#print (sizeX, sizeY)
-	#print()
-	#outputs:
-	#304 250
-	
-	geoList = []
-	# temp adjust bed size, restore below...dumb way reduce coding of hole position
-	sizeX = sizeX +2*padX
-	sizeY = sizeY +2*padY
-	geoList.append(Part.LineSegment(App.Vector(centerX - sizeX / 2, centerY + sizeY / 2, 0),App.Vector(centerX + sizeX / 2, centerY + sizeY / 2, 0)))
-	geoList.append(Part.LineSegment(App.Vector(centerX + sizeX / 2, centerY + sizeY / 2, 0),App.Vector(centerX + sizeX / 2, centerY - sizeY / 2, 0)))
-	geoList.append(Part.LineSegment(App.Vector(centerX + sizeX / 2, centerY - sizeY / 2, 0),App.Vector(centerX - sizeX / 2, centerY - sizeY / 2, 0)))
-	geoList.append(Part.LineSegment(App.Vector(centerX - sizeX / 2, centerY - sizeY / 2, 0),App.Vector(centerX - sizeX / 2, centerY + sizeY / 2, 0)))
-	sizeX = sizeX -2*padX
-	sizeY = sizeY -2*padY
+    #print (sizeX, sizeY)
+    #print()
+    #outputs:
+    #304 250
 
-	geoCount = sk.GeometryCount	# save count PRIOR, to make contraints MORE generic, in case OTHER items already in sketch!
-	#App.ActiveDocument.Sketch_CncBed.addGeometry(geoList,False)
-	sk.addGeometry(geoList,False)
-
-	conList = []
-	conList.append(Sketcher.Constraint('Coincident',geoCount + 0,2, geoCount + 1,1))
-	conList.append(Sketcher.Constraint('Coincident',geoCount + 1,2, geoCount + 2,1))
-	conList.append(Sketcher.Constraint('Coincident',geoCount + 2,2, geoCount + 3,1))
-	conList.append(Sketcher.Constraint('Coincident',geoCount + 3,2, geoCount + 0,1))
-	conList.append(Sketcher.Constraint('Horizontal',geoCount + 0))
-	conList.append(Sketcher.Constraint('Horizontal',geoCount + 2))
-	conList.append(Sketcher.Constraint('Vertical',geoCount + 1))
-	conList.append(Sketcher.Constraint('Vertical',geoCount + 3))
-	#App.ActiveDocument.Sketch_CncBed.addConstraint(conList)
-	sk.addConstraint(conList)
-
+    geoList = []
+    # temp adjust bed size, restore below...dumb way reduce coding of hole position
+    sizeX = sizeX +2*padX
+    sizeY = sizeY +2*padY
+    geoList.append(Part.LineSegment(App.Vector(centerX - sizeX / 2, centerY + sizeY / 2, 0),
+                                    App.Vector(centerX + sizeX / 2, centerY + sizeY / 2, 0)))
+    geoList.append(Part.LineSegment(App.Vector(centerX + sizeX / 2, centerY + sizeY / 2, 0),
+                                    App.Vector(centerX + sizeX / 2, centerY - sizeY / 2, 0)))
+    geoList.append(Part.LineSegment(App.Vector(centerX + sizeX / 2, centerY - sizeY / 2, 0),
+                                    App.Vector(centerX - sizeX / 2, centerY - sizeY / 2, 0)))
+    geoList.append(Part.LineSegment(App.Vector(centerX - sizeX / 2, centerY - sizeY / 2, 0),
+                                    App.Vector(centerX - sizeX / 2, centerY + sizeY / 2, 0)))
+    sizeX = sizeX -2*padX
+    sizeY = sizeY -2*padY
+    
+    geoCount = sk.GeometryCount	# save count PRIOR, to make contraints MORE generic, in case OTHER items already in sketch!
+    sk.addGeometry(geoList,False)
+    conList = []
+    conList.append(Sketcher.Constraint('Coincident',geoCount + 0,2, geoCount + 1,1))
+    conList.append(Sketcher.Constraint('Coincident',geoCount + 1,2, geoCount + 2,1))
+    conList.append(Sketcher.Constraint('Coincident',geoCount + 2,2, geoCount + 3,1))
+    conList.append(Sketcher.Constraint('Coincident',geoCount + 3,2, geoCount + 0,1))
+    conList.append(Sketcher.Constraint('Horizontal',geoCount + 0))
+    conList.append(Sketcher.Constraint('Horizontal',geoCount + 2))
+    conList.append(Sketcher.Constraint('Vertical',geoCount + 1))
+    conList.append(Sketcher.Constraint('Vertical',geoCount + 3))
+    #App.ActiveDocument.Sketch_CncBed.addConstraint(conList)
+    sk.addConstraint(conList)
+    
 def testLbcOutline():           # no holes or countersink!!
     #######################################################################################
 	# TEST ONLY -{as another rectangle stuffs up desired outcome!}
@@ -327,7 +329,7 @@ def screw_locating_pin_holes(): # NO countersink
 
 
 
-doc=App.activeDocument()
+#doc=App.activeDocument()
 #if(App.activeDocument() == None):App.newDocument()
 
 if bottom_sketch:
@@ -350,12 +352,8 @@ if bottom_sketch:
 
     # CURRENTLY max tool dia with ONE flute cut acrylic = 4.0mm dia
     # SO really SHOULD *POCKET* using FACES, not EDGE profile.
-    if (False):  # COUNTERSINKs - as they have dif finish depth
-        LBC_x4_holes(bhhf_d)            # 9.5
-        leadMount_holes(bhhf_d)         # 9.5 dia
-        App.Console.PrintMessage('1: Added: Countersink holes 9.5mm ....really SHOULD *POCKET* using FACES  with 4.0mm tool, not EDGE profile.\n')
 
-    # BELOW here CAN Pocket Edges
+    # BELOW here CAN Pocket Edges or Helix
     if (True):  #nut_insert_holes = large hole, but all the way through!
         # This group min hole = 5.0mm dia
         #   testLbcOutline()            # none  none
@@ -384,7 +382,7 @@ else:
     if (True):  # COUNTERSINKs - as they have dif finish depth
         LBC_x4_holes(bhhf_d)            # 9.5
         leadMount_holes(bhhf_d)         # 9.5 dia
-        App.Console.PrintMessage('1: Added: Countersink holes 9.5mm ....really SHOULD *POCKET* using FACES  with 4.0mm tool, not EDGE profile.\n')
+        App.Console.PrintMessage('1: Added: Countersink holes 9.5mm ....\n')
 
 ############################################################################################################
 ############################################################################################################
@@ -419,7 +417,7 @@ print ('\n\t Now create job, THEN use the enumerateEdges_selected.FCMacro to sel
 
 #doc.recompute()
 #Gui.activeDocument().activeView().viewIsometric()
+
 Gui.activeDocument().activeView().viewTop()
 Gui.SendMsgToActiveView("ViewFit")
-
 # Macro End: C:\Users\spanner888\AppData\Roaming\FreeCAD\Macro\frontPanelGeneric.FCMacro ++++++++++++++++++++++++++++++++++++++++++++++++
