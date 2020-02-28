@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 # Macro Begin: FreeCAD\Macro\CurvedSlot.FCMacro +++++++++++++++++++++++++++++++++++++++++++++++++
-import FreeCAD, Sketcher, Spreadsheet, math
+import FreeCAD, Sketcher, Spreadsheet, math, copy
+import Draft, DraftVecUtils, Part,PartGui 
 
-''' Create curved slot/s with either curved or flat ends
+''' Create curved slot/s with either curved or flat ends +++TABS <<<DESCRIBE HOW!!!!!
     AND constrain using aliased variables auto created in spreadsheet.
     
     USAGE:
@@ -42,7 +43,11 @@ __Files__ = 'CurvedSlot.FCMacro'
 
 
 ''' TODO:
-    
+   
+    Tabs
+        - make parametric & check/change constraints so OK with params changing
+        - >>"Horizontal" notch in SELECTED tabs - to twist/lock in replacable head
+   
     ?? radius param = outer radius, or change to centerline?
 
     FIX: #REALY silly below!!!
@@ -50,6 +55,40 @@ __Files__ = 'CurvedSlot.FCMacro'
     ??option/version to pass in param. impact on FC param/expresions?
     
     cone template - usign vars that make sense for that situation
+'''
+
+''' HERE TODO:-
+so fit curved slots to head
+then design flattened cone shape to fit!!!
++++tabs have to go on "inside/short" curved side!!!
+1. get xy offset of webcamera           wcelp_c_x, wcelp_c_y  29 -39
+2. work out slot inner/outer radius     43 outer, slot w = 2, so design for 42mm dia
+3. adjust head?                         ///roughly done - OK for prototype
+4. make/add slot to head                // done
+5. params here ++ tweak for flattened cone <<<
+    see LED ring calculations & Tests_v4.ods
+    csRadius	121.794111041655	98.7586301602912	98.9634032099943	100.848620621439
+    csArcAngle	170.045096573932	245.533523644893	350.596756726002	356.811998281256
+    csWidth	30	30	30	30
+    cone Slope	15	25	65	75
+6. update tabs for startAngle & also xy offset
+    ?? change tab placement order? ie start to end match slot ...currently opposite?
+
+really crappy offseting for start of tab pos!!!!
+
+FIXED=>BUG:- if doing FLAT ends on curve - only does HALF WIDTH
+    **also fix in non-tabbed ver & re-release!!!
+
+..and end tab...or at least extend for overlapping join!!!
+++xy offset for tabs
+
+++tab vars NOT into ss, but move near to csVars & doc
+including oneTooth options
+
+create design files for ALL proposed cones...and add paths
+DOCUMENT file names/paramsditto head!!!
+
+cut test cones in paper {{using drag knife????}}
 '''
 
 
@@ -65,18 +104,23 @@ currentRow = 1 #whatever row to start on ..for header, vars below.
 
 #curvedSlotVars
 # imagine only ONE set var/alias names and then multiple SETS data = multiple objects
-# ...lke Part_families macro 
+# ...like Part_families macro 
 # ...and PR#2862: Configuration Table using Spreadsheet https://forum.freecadweb.org/viewtopic.php?f=17&t=42183
 # This data input = interim...POC shape-param-spreadsheet alias - expressions - code/FC all work nicely.
+
 csVars = [["csRadius", "csOriginX", "csOriginY", "csWidth", "csStartAngle", "csArcAngle", "curvedEnds"],
-          [043.0,      29.0,        -44.0,       2.0,       10.0,          20.0,      True],
-          [043.0,      29.0,        -44.0,       2.0,       70.0,          20.0,      True],
-          [043.0,      29.0,        -44.0,       2.0,       130.0,         20.0,      True],
-          [043.0,      29.0,        -44.0,       2.0,       190.0,         20.0,      True],
-          [043.0,      29.0,        -44.0,       2.0,       250.0,         20.0,      True],
-          [043.0,      29.0,        -44.0,       2.0,       310.0,         20.0,      True],
+           # Cone slope 15 deg, truncated top dia = 42mm to match current prototype head
+          [121.794111,  0.0,        0.0,       30.0,       0,       170.045096573932,False],
           ]
 '''
+            # 4x cone templates 15, 25, 65, 75 degree cone slope
+          [121.794111,  0.0,        0.0,       30.0,       0,       170.045096573932,False],
+          [98.7586302,  0.0,        0.0,       30.0,       0,       245.533523644893,False],
+          [98.9634032,  0.0,        0.0,       30.0,       0,       350.596756726002,False],
+          [100.848621,  0.0,        0.0,       30.0,       0,       356.811998281256,False],
+
+          [80.0,        0.0,        0.0,       30.0,       -80,          175.0,      False],
+
           [10.0,        40.0,        -55.0,       2.0,       180,          180.0,      True],
           [20.0,        25.0,        -25.0,       4.0,       10,          100.0,      False],
           [20.0,        25.0,        -25.0,       4.0,      130,          100.0,      False],
@@ -161,15 +205,80 @@ def expHelper(constraintIndex, constraintVar, equation = ""):
     # SO recompute after EVERY expression added!
     doc.recompute()
     
+# o, 1 or more teeth/tabs.
+def teeth(oneTooth, num_teeth = 0, offset = App.Vector(0,0,0), 
+            radius = 0, startAngle = 0.0, nextToothAngle = 0.0,
+            interToothGap=0.0, ext_leadin_LHS=0.0, ext_leadin_RHS=0.0):
+    #calculations
+    # TO DO this only works for interlocking teeth ATM!!!!!!
+    #t_full_w    =     2.0 * t_top_w + 2 * t_base_slope
+    #t_full_w    =     t_top_w + 2 * t_base_slope + 2 * interLockLIO
+    #t_full_w = oneTooth[lastElement-1] <<latest code!
+    #body_width     =     num_teeth * t_full_w
+    
+    n=list()
+    for count in range(0, num_teeth):
+        lastElement = len(oneTooth)
+        rtooth = []
+        rTooth = copy.deepcopy(oneTooth)
+        for i in range(lastElement):
+                # before nextToothAngle, offset to slot/arc radius
+                rTooth[i] = rTooth[i] + App.Vector(0,radius,0)
+                #if nextToothAngle != 0:
+                rTooth[i] = DraftVecUtils.rotate(rTooth[i], 
+                            math.radians(startAngle - nextToothAngle*count), 
+                            App.Vector(0,0,1))
+                n.append(rTooth[i])
+    return n
+
+# JUST A WRAPPER FOR ALL THE LITTLE STEPS...
+def tabs(oneTooth, radius, outerTeethCount=1, startAngle = 0.0, arcAngleDegrees = 10.0, 
+        fillet = False):
+    actual_width_start = 0
+    actual_width_end = 0
+    offset = App.Vector(-4.5, 5, 0)
+
+    t_rotation    = arcAngleDegrees/outerTeethCount
+    
+
+    # Create a polygon object and set its nodes 
+    p=doc.addObject("Part::Polygon","Polygon_Teeth") 
+    p.Nodes = teeth(oneTooth, outerTeethCount, offset, radius, startAngle-90, t_rotation, 0, 0, 0)
+    t_fillet_r   =     2
+    
+ 
+    #convert polygon to sketch
+    doc.recompute()
+    #next only works sometimes, ditto all the usual variations...
+    #App.activeDocument().getObject("Polygon_Teeth").Visibility=False
+
+    #fillet all line ends, except last as no paired line on last end!
+    ### CAN do fillets in draft - if need to!!!!
+    #Draft.makeSketch(objectslist, autoconstraints=False, addTo=None, delete=False, name="Sketch", radiusPrecision=-1)
+    sk = Draft.makeSketch(doc.Polygon_Teeth,autoconstraints=True)
+    if fillet:
+        for geoLineNumber in range(sk.GeometryCount - 1):
+            sk.fillet(geoLineNumber,2, t_fillet_r /2)
+        
+    #NOW just LOCK (block) every part of tooth ...stop accidental movements later
+    #NB done in sep for, as sk.GeometryCount INCREASES with every fillet added above!!
+    for geoLineNumber in range(sk.GeometryCount - 1):
+        sk.addConstraint(Sketcher.Constraint('Block',geoLineNumber)) 
+
+    print ("****>>> Now make the orig polygon invisible, or just delete it!")
+    print ()
+    print ("")
+    doc.recompute()
+
 # create ALL valid slots & constraints.   
-def curvedSlot(vars):
+def curvedSlot(vars, outerTeethCount = 0, outerTooth = '', innerTeethCount = 0, innerTooth = ''):
     sdi = 1    #shapeDataSetIndex
     # check if ALL aliases for this entire shape exist.
     doc.recompute()
     validAliasSet = checkAliasSet(vars)
     for shapeData in vars[1:]:
-        print("curvedSlot: ", sdi, shapeData)
-        # if have ENTIRE set valid aliases, create this shape, else report & skip creating this shape
+        #print("curvedSlot: ", sdi, shapeData)
+        # if have ENTIRE set valid aliases, create this shape, else report & skip 
         if validAliasSet: 
             # local vars with meaningful names AND angles to radians!
             # get values from ss Alias..NOT from passed in data - only use that for alias names & loop indexes
@@ -337,8 +446,16 @@ def curvedSlot(vars):
                 
                 if printHelperMsgs:
                     for i in sk.ExpressionEngine: print (i[0]," = ",i[1])
-
         sdi += 1
+    if outerTeethCount > 0:
+        tabs(outerTooth, slotOuterRadius[0], outerTeethCount, 
+            (startAngleDegrees[0]+arcAngleDegrees[0])- 3.27, 
+            arcAngleDegrees[0], False)
+
+    if innerTeethCount > 0:
+        tabs(innerTooth, slotOuterRadius[0] - slotWidth[0], innerTeethCount, 
+            (startAngleDegrees[0]+arcAngleDegrees[0]) - 3.27, 
+            arcAngleDegrees[0], False)
 
 ######################################################################################
 
@@ -395,9 +512,88 @@ if(ss == None):
     createSpreadsheetAliasedVarSets()
     doc.recompute()     #<<<<<<<<<<<<<<<<<<< the fix!!! (ie fails 1st time if this not here!)
     #checkAliasSet(csVars)
-    
-# create all curved slots existing with COMPLETE sets spreadsheet aliases ...BUT looping using above csVars!!!
-curvedSlot(csVars)
+
+#########################################################################################
+#########################################################################################
+#########################################################################################
+# One tooth shape - calc/store once, then add translation offset/rotation as required below
+# this should allow for other tooth shapes easy added!
+# NOT reflect/mirror 2nd half?...only 3/4 point!
+t_top_w      =     10
+t_base_slope =     2
+t_height     =     8
+
+outerTooth = list()
+innerTooth = list() 
+#oneTooth.append(App.Vector(0, 0, 0)) 
+#oneTooth.append(App.Vector(1*t_base_slope,            t_height, 0)) 
+#oneTooth.append(App.Vector(1*t_base_slope + t_top_w , t_height, 0)) 
+#oneTooth.append(App.Vector(2*t_base_slope + t_top_w,  0, 0)) 
+
+# Tooth centered on Y axis. 
+# Just change leading -/+ signs to change LR to RL direction.
+'''oneTooth.append(App.Vector(-(t_base_slope+t_top_w/2), 0, 0)) 
+oneTooth.append(App.Vector(-(            +t_top_w/2), t_height, 0)) 
+oneTooth.append(App.Vector(+(            +t_top_w/2), t_height, 0)) 
+oneTooth.append(App.Vector(+(t_base_slope+t_top_w/2), 0, 0)) 
+'''
+
+# Tooth +notch centered on Y axis. 
+# Just change leading -/+ signs to change LR to RL direction.
+n_h = 3.1
+n_w = 7.0
+
+outerTooth.append(App.Vector(-(     t_base_slope+t_top_w/2), 0, 0)) 
+outerTooth.append(App.Vector(-(-n_w+t_base_slope+t_top_w/2), 0, 0)) 
+outerTooth.append(App.Vector(-(-n_w+t_base_slope+t_top_w/2), n_h, 0)) 
+outerTooth.append(App.Vector(-(t_base_slope+t_top_w/2), n_h, 0)) 
+outerTooth.append(App.Vector(-(            +t_top_w/2), n_h+t_height, 0)) 
+outerTooth.append(App.Vector(+(            +t_top_w/2), n_h+t_height, 0)) 
+outerTooth.append(App.Vector(+(t_base_slope+t_top_w/2), n_h, 0)) 
+outerTooth.append(App.Vector(+(t_base_slope+t_top_w/2), 0, 0)) 
+
+# upside down version of above
+innerTooth.append(App.Vector(-(     t_base_slope+t_top_w/2), 0, 0)) 
+innerTooth.append(App.Vector(-(-n_w+t_base_slope+t_top_w/2), 0, 0)) 
+innerTooth.append(App.Vector(-(-n_w+t_base_slope+t_top_w/2), -n_h, 0)) 
+innerTooth.append(App.Vector(-(t_base_slope+t_top_w/2), -n_h, 0)) 
+innerTooth.append(App.Vector(-(            +t_top_w/2), -(n_h+t_height), 0)) 
+innerTooth.append(App.Vector(+(            +t_top_w/2), -(n_h+t_height), 0)) 
+innerTooth.append(App.Vector(+(t_base_slope+t_top_w/2), -n_h, 0)) 
+innerTooth.append(App.Vector(+(t_base_slope+t_top_w/2), 0, 0)) 
+
+'''# This big lot,captured in macro from hand drawn polyline, 
+# then trimmed to get vectors
+# have not worked out circel, but shape shape v close, prob just fix leadin/out connecting.....
+# See picture/desktopbackground/notched Tabs (HAND DRAWN) & curved Slot.png
+# orig shape in center
+oneTooth.append(App.Vector(50.303638,-0.404859,0))
+oneTooth.append(App.Vector(40.384613,-0.607288,0))
+oneTooth.append(App.Vector(40.384613,0.000000,0))
+oneTooth.append(App.Vector(39.979755,9.716600,0))
+oneTooth.append(App.Vector(39.979755,9.716600,0))
+oneTooth.append(App.Vector(50.506065,9.919029,0))
+oneTooth.append(App.Vector(50.506065,9.716600,0))
+oneTooth.append(App.Vector(40.384613,19.838058,0))
+#oneTooth.append(Part.ArcOfCircle(Part.Circle(App.Vector(35.020243,14.473692,0),App.Vector(0,0,1),7.586362),0.785398,2.356195),False)
+oneTooth.append(App.Vector(29.655872,19.838057,0))
+oneTooth.append(App.Vector(19.736848,9.919024,0))
+oneTooth.append(App.Vector(19.736848,9.919024,0))
+oneTooth.append(App.Vector(19.939268,-0.607288,0))
+'''#end big lot hand drawn polyline
+
+#########################################################################################
+#########################################################################################
+#########################################################################################
+
+# create all curved slots in csVars dataset 
+# with COMPLETE sets spreadsheet aliases 
+outerTeethCount = 8
+innerTeethCount = 6
+#curvedSlot(csVars, outerTeethCount, outerTooth, innerTeethCount, innerTooth)
+curvedSlot(csVars, 8, outerTooth, innerTeethCount, innerTooth)
+
+App.Console.PrintMessage('**WARNING: If BOTH inner & outer present, then sketcher solver\n\t OVERLAYS ENTIRE inner tabs sketch on UPPER tabs!\n\t....& other wierdness if MANY tabbed slots added!')
 
 doc.recompute()
 #Gui.activeDocument().activeView().viewIsometric()
