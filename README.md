@@ -8,6 +8,6 @@ Curved slot example images:
 
 ![Sketch example](https://github.com/spanner888/FreeCAD-macro-explorations/blob/master/CurvedSlot/ExistingShapePlusSlots.png)
 
-![Tabbed slot](https://github.com/spanner888/FreeCAD-macro-explorations/blob/master/CurvedSlot/notched Tabs inner & outer, curved Slot.png)
+![Tabbed slot](https://github.com/spanner888/FreeCAD-macro-explorations/blob/master/CurvedSlot/notched%20Tabs%20inner%20&amp%20outer, curved%20Slot.png)
 
 ![CNC Bed, with paths](https://github.com/spanner888/FreeCAD-macro-explorations/blob/master/CNC_BED_upperY_16mm_longBearings_SKETCH_v1.png)
