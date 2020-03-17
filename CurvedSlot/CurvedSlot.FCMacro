@@ -93,7 +93,7 @@ csVars = [["csRadius", "csOriginX", "csOriginY", "csWidth", "csStartAngle", "csA
           ]
 '''
 #REALY silly way iterate over spreadsheet cols - just get past here till sort out later :)
-cols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q,R,S', 'T', 'U', 'X', 'Y', 'Z']
+cols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'X', 'Y', 'Z']
 #------------------------------------------------------
 
 def makeCellRange(cStart, cEnd):
