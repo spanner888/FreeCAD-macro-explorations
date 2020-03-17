@@ -6,12 +6,18 @@ import Draft, DraftVecUtils, Part,PartGui
 
 ''' Create curved slot/s with either curved or flat ends +++TABS <<<DESCRIBE HOW!!!!!
     AND constrain using aliased variables auto created in spreadsheet.
+
     
     USAGE:
-        Edit csVars array so that:
+        curvedslots: Edit csVars array so that:
             one row data per shape desired.
             each row contains values used to create shape.
             
+        Tabs: Create a polygon outline use straight lines only in variables outerTooth & innerTooth.
+        Several examples in code.
+        Inner curve shape can just reverse Y axis sign if you want same shape.
+        Take care the tab outline drawing order (first & last point order) matches the placement order around the curve, or you will have unwanted lines from one tooth to next.
+
         From start workbench, or empty document, run macro.
         
         Add slot/s to existing design.
@@ -23,11 +29,12 @@ import Draft, DraftVecUtils, Part,PartGui
 
     Limitation:
         Cannot change flat/curved ends or number shapes AFTER macro has run, but all other properties can be changed.
+        Tabs cannot be changed after macro has run.
     
 '''
 
-__Name__ = 'CurvedSlot'
-__Comment__ = 'Create curved slot/s with either curved or flat ends'
+__Name__ = 'CurvedSlotWithTabs'
+__Comment__ = 'Create curved slot/s with either curved or flat ends, Optionaly add tabs to inner or outer edges.'
 __Author__ = 'spanner888'
 __Version__ = '0.2.0'
 __Date__ = '2020-03-17'
@@ -39,7 +46,7 @@ __Help__ = 'Edit csVars array, one row data per shape desired, with values used 
 __Status__ = 'Beta - works OK for me'
 __Requires__ = 'Developed on v0.19.1952, briefly tested on v0.18, works, but some errors reported'
 __Communication__ = 'https://github.com/spanner888/FreeCAD-macro-explorations/issues'
-__Files__ = 'CurvedSlot.FCMacro'
+__Files__ = 'CurvedSlotWithTabs.FCMacro'
 
 
 ''' TODO:
@@ -55,40 +62,6 @@ __Files__ = 'CurvedSlot.FCMacro'
     ??option/version to pass in param. impact on FC param/expresions?
     
     cone template - usign vars that make sense for that situation
-'''
-
-''' HERE TODO:-
-so fit curved slots to head
-then design flattened cone shape to fit!!!
-+++tabs have to go on "inside/short" curved side!!!
-1. get xy offset of webcamera           wcelp_c_x, wcelp_c_y  29 -39
-2. work out slot inner/outer radius     43 outer, slot w = 2, so design for 42mm dia
-3. adjust head?                         ///roughly done - OK for prototype
-4. make/add slot to head                // done
-5. params here ++ tweak for flattened cone <<<
-    see LED ring calculations & Tests_v4.ods
-    csRadius	121.794111041655	98.7586301602912	98.9634032099943	100.848620621439
-    csArcAngle	170.045096573932	245.533523644893	350.596756726002	356.811998281256
-    csWidth	30	30	30	30
-    cone Slope	15	25	65	75
-6. update tabs for startAngle & also xy offset
-    ?? change tab placement order? ie start to end match slot ...currently opposite?
-
-really crappy offseting for start of tab pos!!!!
-
-FIXED=>BUG:- if doing FLAT ends on curve - only does HALF WIDTH
-    **also fix in non-tabbed ver & re-release!!!
-
-..and end tab...or at least extend for overlapping join!!!
-++xy offset for tabs
-
-++tab vars NOT into ss, but move near to csVars & doc
-including oneTooth options
-
-create design files for ALL proposed cones...and add paths
-DOCUMENT file names/paramsditto head!!!
-
-cut test cones in paper {{using drag knife????}}
 '''
 
 
@@ -110,7 +83,7 @@ currentRow = 1 #whatever row to start on ..for header, vars below.
 
 csVars = [["csRadius", "csOriginX", "csOriginY", "csWidth", "csStartAngle", "csArcAngle", "curvedEnds"],
            # Cone slope 15 deg, truncated top dia = 42mm to match current prototype head
-          [121.794111,  0.0,        0.0,       30.0,       0,       170.045096573932,False],
+          [100.848621,  0.0,        0.0,       30.0,       0,       356.811998281256,False],
           ]
 '''
             # 4x cone templates 15, 25, 65, 75 degree cone slope
