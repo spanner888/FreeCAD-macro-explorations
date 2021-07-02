@@ -1,0 +1,200 @@
+# -*- coding: utf-8 -*-
+
+# ***************************************************************************
+# *                                                                         *
+# *   Copyright (c) 2021 spanner888 <spanner888@usabledevices.com>          *
+# *                                                                         *
+# *   This program is free software; you can redistribute it and/or modify  *
+# *   it under the terms of the GNU Lesser General Public License (LGPL)    *
+# *   as published by the Free Software Foundation; either version 2 of     *
+# *   the License, or (at your option) any later version.                   *
+# *   for detail see the LICENCE text file.                                 *
+# *                                                                         *
+# *   This program is distributed in the hope that it will be useful,       *
+# *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+# *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+# *   GNU Library General Public License for more details.                  *
+# *                                                                         *
+# *   You should have received a copy of the GNU Library General Public     *
+# *   License along with this program; if not, write to the Free Software   *
+# *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
+# *   USA                                                                   *
+# *                                                                         *
+# ***************************************************************************
+
+# Demonstration script to run Feed and Speed Calculator FreeCAD addon, 
+# which must be installed from https://github.com/dubstar-04/FeedsAndSpeeds, although see bug note below for alternate version.
+
+# It uses the Feed and Speed Calculator to produce rpm, feed and power information.
+# The Feed and Speed Calculator FreeCAD addon has a nice GUI that is accessed from FreeCAD Path menu, 
+# but there is currently no integration with FreeCAD to use tool (or material) information in it's calculations
+# nor does it place results into a FreeCAD Path ToolController.
+# It is also the first stage of automating Tool -> Feed and Speed -> Tool Controller, which is coming in about one week :)
+# Script also adds features:-
+#   - Adds intial Feed Per Tooth based on material
+#   - Automatic over ride of maximum Spindle Power, Feed Rate and max & min Spindle rpm, based on User settings
+#   - Print all input vars in the FreeCAD report pane using showInputs()
+#   These added features should be added to Feed and Speed Calculator, once everything bedded down.
+# Plunge feed rates are not calculated.
+
+# STATUS:-
+# version 1.0
+# Fully functional, except for bug noted below & easy fix available. Lots more planned - see notes at EOF "more TODOs & ideas:-"
+# BUG: rpm over ride(s) do not work until this issue fixed https://github.com/dubstar-04/FeedsAndSpeeds/issues/7
+#   Easy DIY fix is just change return value from rpm to calc_rpm. 
+#   Alternatively get patched code from https://github.com/spanner888/FeedsAndSpeeds
+    
+import FreeCAD as App
+import PathFeedsAndSpeeds
+
+""" USAGE: Set you desired material, tool and cnc limits, as well as WOC DOC etc to match your situation
+    Note two modes: Milling & Drilling have some common & differing vars."""    
+
+class Cnc_limits:
+    """ Define limits of your machines feed rate, rp, and power 
+    
+        Defaults are low to help test over rides & also are for my low end home made CNC"""
+    
+    def __init__(self, feedMax=1000, rpmMin = 1000, rpmMax=12000, power=500):
+    
+        self.cncFeedMax = feedMax   # mm/min
+        self.cncRpmMin = rpmMin
+        self.cncRpmMax = rpmMax
+        self.cncPower = power       # in watts
+
+def speedsandfeedsWrapper(tool):
+    rpm, feed, Hp = fs.calculate(tool) 
+    print("\trpm %d, feed %d, Hp %.2f & Watts %d" % (rpm, feed, Hp, (Hp*745.6999)))
+    if rpm > limits.cncRpmMax:
+        fs.rpm_overide = limits.cncRpmMax
+        rpm, feed, Hp = fs.calculate(tool) 
+        print("\t >>>OVERRIDING RPM to cnc max rpm")
+        print("\t rpm %d, feed %d, Hp  %.2f & Watts  %d" % (rpm, feed, Hp, Hp*745.6999))
+
+    if rpm < limits.cncRpmMin:
+        fs.rpm_overide = limits.cncRpmMin
+        rpm, feed, Hp = fs.calculate(tool) 
+        print("\t >>>OVERRIDING RPM to cnc *MIN* rpm")
+        print("\t rpm %d, feed %d, Hp  %.2f & Watts  %d" % (rpm, feed, Hp, Hp*745.6999))
+
+    if feed > limits.cncFeedMax:
+        fs.rpm_overide = rpm * limits.cncFeedMax/feed
+        rpm, feed, Hp = fs.calculate(tool) 
+        print("\t >>>OVERRIDING & reducing FEED ")
+        print("\t rpm %d, feed %d, Hp  %.2f & Watts  %d" % (rpm, feed, Hp, Hp*745.6999))
+
+    if  Hp*745.6999 > limits.cncPower:
+        fs.rpm_overide = feed * limits.cncPower/Hp*745.6999
+        rpm, feed, Hp = fs.calculate(tool) 
+        print("\t >>>OVERRIDING Power required & reducing FEED ")
+        print("\t rpm %d, feed %d, Hp  %.2f & Watts  %d" % (rpm, feed, Hp, Hp*745.6999))
+    return (rpm, feed, Hp)
+
+def showInputs():
+    print("\n\t\t -- Display Inputs to the 'Feed and Speed Calculator'")
+    print("\tCNC limits:- FeedMax: %d, RpmMin: %d, RpmMax: %d, PowerMax:  %d" % (limits.cncFeedMax, limits.cncRpmMin, limits.cncRpmMax, limits.cncPower))
+    print("\ttool:- Dia: %.2f, flutes: %d, material: %s" % (tool.toolDia, tool.flutes, fs.ss_by_material))
+    print("\tmaterial: %s" % fs.material)
+    print("\topType: %s, toolWear: %.2f" % (fs.opType, fs.toolWear))
+    print("\tfeedPerTooth: %.3f, WOC: %.2f, DOC: %.2f" % (fs.feedPerTooth, fs.WOC, fs.DOC))
+    if milling == False :
+        print('\tNote: Use Peck drilling if hole depth >4x tool dia, ie ' + str(tool.toolDia * 4))
+    print(" --- Display Inputs end\n")
+    
+# REFERENCE: Materials list including hardness & machinability factors used by Feed and Speed Calculator https://github.com/dubstar-04/FeedsAndSpeeds
+## Data from Machineries Handbook 28. 
+## Kp: Tables 1a, 1b 
+## Brinell Hardness: http://www.matweb.com
+
+## ss_hss = surface speed (m/min) for milling with high speed steel tools (hss)
+## ss_cbd = surface speed (m/min) for milling with carbide tools
+## ss_drill_hss = surface speed (m/min) for drilling with high speed steel tools (hss)
+## ss_drill_cbd = surface speed (m/min) for drilling with carbide tools
+## Kd = workMaterialFactor from Table 31
+## ref: 1 ft/min = 0.3048 m/min
+materials = [
+    { "material": "Softwood",           "kp": 0.5,      "brinell": 0,     "Kd": 3000 },
+    { "material": "Hardwood",           "kp": 0.75,     "brinell": 0,     "Kd": 4000 },
+    { "material": "Soft Plastics",      "kp": 0.5,      "brinell": 0,     "Kd": 2000 },
+    { "material": "Hard Plastics",      "kp": 0.75,     "brinell": 0,     "Kd": 2000 },
+    { "material": "Aluminium (6061)",   "kp": 0.90,     "brinell": 95,    "Kd": 7000  },
+    { "material": "Aluminium (7075)",   "kp": 0.90,     "brinell": 150,   "Kd": 7000 },
+    { "material": "Aluminium (Cast)",   "kp": 0.68,     "brinell": 150,   "Kd": 7000 },
+    { "material": "Brass (Hard)",       "kp": 2.27,     "brinell": 120,   "Kd": 14000 },
+    { "material": "Brass (Medium)",     "kp": 1.36,     "brinell": 120,   "Kd": 14000 },
+    { "material": "Brass (Soft)",       "kp": 0.68,     "brinell": 120,   "Kd": 7000 },
+    { "material": "Carbon Steel",       "kp": 1.88,     "brinell": 130,   "Kd": 24000},
+    { "material": "Tool Steel",         "kp": 1.88,     "brinell": 400,   "Kd": 340000 },
+    { "material": "Stainless (303)",    "kp": 2.07,     "brinell": 200,   "Kd": 200000 },
+    { "material": "Stainless (304)",    "kp": 2.07,     "brinell": 125,   "Kd": 22000 },
+    { "material": "Stainless (316)",    "kp": 2.07,     "brinell": 80,    "Kd": 24000 },
+]
+
+# Set the limits of your CNC Mill. You can pass in your own values to over ride the defaults.
+limits = Cnc_limits()   #Defaults: feedMax=1000, rpmMin = 1000, rpmMax=12000, power=500
+fs = PathFeedsAndSpeeds.FSCalculation()
+
+# Set params of the tool. Note, tool material is set below for either Milling or Drilling.
+tool = PathFeedsAndSpeeds.Tool()
+tool.toolDia = float(6.0)
+tool.flutes = 2
+
+# Material to be cut. Find exact name from above # REFERENCE: Materials list.
+fs.material = "Hard Plastics"  #"Hardwood"   # "Aluminium (6061)"
+milling = True     # False for Drilling
+
+# Milling or Drilling specific params.
+# Note you can for set parameters to be dependant upon others, 
+#   for eg: DOC to be a fraction of your Tool dia, eg: fs.DOC = tool.toolDia/2
+if milling == True :
+    fs.opType = 'Milling'
+    fs.feedPerTooth = float(0.060)
+    fs.WOC = 1.2
+    fs.DOC = 6
+    fs.toolWear = 1.1                      ## Tool Wear pg: 1048
+    fs.ss_by_material = "ss_cbd"           # "ss_hss" "ss_cbd"
+else:
+    fs.opType = 'Drilling'
+    fs.feedPerTooth = float(0.060)
+    fs.toolWear = 1.3                      ## Tool Wear pg: 1048
+    fs.ss_by_material = "ss_drill_hss"     # "ss_drill_cbd"
+    if tool.toolDia:
+        print('Note: Use Peck drilling if hole depth >4x tool dia, ie ' + str(tool.toolDia * 4))
+
+showInputs()
+# Now do the magic 
+speedsandfeedsWrapper(tool)
+print(" -- end Feeds and Speeds integration script/macro --")
+
+
+# more TODOs & ideas:-
+# TODO manage CNC limits {better algorithm!!), ALSO feedPerTooth !!!!!
+# TODO integrate with TC/Tool creation  ...coming in about one week :)
+
+# ??Print some example ?direct? freq/harmonics above & below based on rpm & # flutes (& feed??)
+# ??fpt also over rides??
+# fpt Power constant C, & thus spindle power
+# fpt => feed
+# ALSO fpt has min to reduce rubbing & chip thinning & tool & stock overheating
+# Prob also varies depending on conventional vs climb (or up vs down) cutting, as well as 100%WOC slottting (although don't remember any www references on this)
+
+
+# Sort out/doc over ride factors - eg fpt, DOC & WOC ONLY/directly affect  sp power.
+# ...even if just doc, so user can easily adjust.
+# make sure o'rides follow CALC ORDER!!!!
+
+# Look up past notes/forum ideas <<<<<<< 
+    # E:\Hobby\FreeCAD\Dev\Feeds & Speeds\Feeds & Speeds integration 2021-03.txt
+        # >> path job template has var for chipload!!!!
+        # PathSetupSheet.DEBUG: {'Chipload': '0.00 mm', 'Diameter': '5.00 mm', 'Flutes': '0', 'Length': '50.00 mm', 'Material': 'HSS', 'TipAngle': '119.00 °'}
+        
+    # >>>more in tool spreadsheet & some other dir???
+# Setting: cautious/middling/agressive ...where agressive pushes ALL 3 vars to as clsoe as poss to max rpm/feed/power 
+                                        # & others settings reduce to user values of say 80 & 40%
+                                        # esp pay atteniton if reducing Feed ADN rpm ..ie BOTH at same time.
+                                        # Power reduciton ...less important/impact?????
+    # Use and enum..or 2, 2nd with % values or 2nd = array/list values, or a dictionary....
+  # Think MORE on this becasue already had note about:
+    # " User profiles - to allow for different spindles (& or more than one machine)"
+    # ...and I do use 2 dif CNC
+    
