@@ -1,7 +1,7 @@
 # FreeCAD-macro-explorations
 Macros I created (ie not official FreeCAD macros...but likely inspired by them)
 
-##feeds_and_speeds_integration.FCMacro
+## feeds_and_speeds_integration.FCMacro
 	Demonstration script to run Feed and Speed Calculator FreeCAD addon, 
 	which must be installed from https://github.com/dubstar-04/FeedsAndSpeeds, although see bug note below for alternate version.
 
@@ -25,7 +25,7 @@ Macros I created (ie not official FreeCAD macros...but likely inspired by them)
 	  Alternatively get patched code from https://github.com/spanner888/FeedsAndSpeeds
 
 ## Below refer to older, functional, but pretty bad code, which might give you some usefull ideas.
-###Curved slot example images:
+### Curved slot example images:
 ![Sketch example](https://github.com/spanner888/FreeCAD-macro-explorations/blob/master/CurvedSlot/curvedSlot1.png)
 
 ![Sketch example 3D](https://github.com/spanner888/FreeCAD-macro-explorations/blob/master/CurvedSlot/curvedSlotPaddedSlots1.png)
